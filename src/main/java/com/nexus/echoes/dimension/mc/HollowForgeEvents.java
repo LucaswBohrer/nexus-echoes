@@ -69,6 +69,15 @@ public final class HollowForgeEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        // Drop transient per-player anomaly state (Phase 5.5 audit RISK-2):
+        // cooldown entries must not accumulate for players who are gone.
+        if (event.getEntity() instanceof ServerPlayer player) {
+            ANOMALIES.onPlayerLogout(player.getUUID());
+        }
+    }
+
+    @SubscribeEvent
     public static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             // Fresh snapshots after any transit; the client must never keep
@@ -126,6 +135,12 @@ public final class HollowForgeEvents {
             for (int dy = -PROXIMITY_RADIUS; dy <= PROXIMITY_RADIUS; dy++) {
                 for (int dz = -PROXIMITY_RADIUS; dz <= PROXIMITY_RADIUS; dz++) {
                     BlockPos p = origin.offset(dx, dy, dz);
+                    // Never force chunk loads/generation from a discovery
+                    // scan (Phase 5.5 audit RISK-3): only inspect chunks
+                    // the server already has loaded.
+                    if (!hollow.hasChunkAt(p)) {
+                        continue;
+                    }
                     ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.BLOCKS
                             .getKey(hollow.getBlockState(p).getBlock());
                     if (id == null) {

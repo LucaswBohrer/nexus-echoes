@@ -27,9 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -61,10 +59,10 @@ public final class AnomalyManager {
 
     private final List<AnomalyDefinition> definitions =
             AnomalyDefinition.builtins(NexusEchoes.MOD_ID);
-    /** Rift-phantom spawn cooldown per player (transient). */
-    private final Map<UUID, Long> lastRiftTeleport = new HashMap<>();
-    /** Players already rewarded for witnessing each anomaly instance (transient). */
-    private final Map<UUID, Long> lastResearchEchoReward = new HashMap<>();
+    /** Rift-phantom teleport cooldown per player (transient, cleared on logout). */
+    private final PlayerCooldowns riftTeleportCooldowns = new PlayerCooldowns();
+    /** Research-echo reward cooldown per player (transient, cleared on logout). */
+    private final PlayerCooldowns researchEchoCooldowns = new PlayerCooldowns();
 
     private final Random random = new Random();
 
@@ -184,7 +182,11 @@ public final class AnomalyManager {
         if (def == null || def.effect() != AnomalyEffect.STATIC_FIELD) {
             return;
         }
-        // Only clear derates that no other active static field still covers.
+        // Clear every derate the expired field owned — even at positions
+        // whose kinetic node was removed mid-anomaly. Stale entries must not
+        // outlive the anomaly (Phase 5.5 audit RISK-1): a derate is keyed by
+        // position, and a future machine at that position must not inherit a
+        // derate from a dead anomaly.
         KineticManager kinetic = KineticManager.get(hollow);
         BlockPos center = new BlockPos(anomaly.x(), anomaly.y(), anomaly.z());
         AABB box = new AABB(center).inflate(def.radius());
@@ -193,25 +195,30 @@ public final class AnomalyManager {
                 new BlockPos((int) box.minX, (int) box.minY, (int) box.minZ),
                 new BlockPos((int) box.maxX, (int) box.maxY, (int) box.maxZ))
                 .forEach(p -> {
-                    if (kinetic.providerAt(p) == null) {
-                        return;
-                    }
-                    boolean stillCovered = false;
-                    for (AnomalyInstance other : data.active()) {
-                        AnomalyDefinition otherDef = definitionOf(other.definitionId());
-                        if (otherDef != null && otherDef.effect() == AnomalyEffect.STATIC_FIELD
-                                && !other.instanceId().equals(anomaly.instanceId())) {
-                            BlockPos oc = new BlockPos(other.x(), other.y(), other.z());
-                            if (oc.distSqr(p) <= (long) otherDef.radius() * otherDef.radius()) {
-                                stillCovered = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!stillCovered) {
+                    if (isUncovered(p.immutable(), anomaly, data.active())) {
                         kinetic.clearDerate(p);
                     }
                 });
+    }
+
+    /**
+     * Test seam (pure): true when no other active static-field anomaly covers
+     * {@code pos}, so the expired anomaly's derate there must be cleared —
+     * regardless of whether a kinetic node currently exists at {@code pos}.
+     */
+    boolean isUncovered(BlockPos pos, AnomalyInstance expired,
+                        List<AnomalyInstance> active) {
+        for (AnomalyInstance other : active) {
+            AnomalyDefinition otherDef = definitionOf(other.definitionId());
+            if (otherDef != null && otherDef.effect() == AnomalyEffect.STATIC_FIELD
+                    && !other.instanceId().equals(expired.instanceId())) {
+                BlockPos oc = new BlockPos(other.x(), other.y(), other.z());
+                if (oc.distSqr(pos) <= (long) otherDef.radius() * otherDef.radius()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void applyEchoBurst(ServerLevel hollow, ServerPlayer player,
@@ -225,11 +232,10 @@ public final class AnomalyManager {
 
     private void applySpatialRift(ServerLevel hollow, ServerPlayer player,
                                   BlockPos center, AnomalyDefinition def, long now) {
-        Long last = lastRiftTeleport.get(player.getUUID());
-        if (last != null && now - last < 20 * 15) {
+        if (riftTeleportCooldowns.isOnCooldown(player.getUUID(), now, 20 * 15)) {
             return;
         }
-        lastRiftTeleport.put(player.getUUID(), now);
+        riftTeleportCooldowns.mark(player.getUUID(), now);
         double angle = random.nextDouble() * Math.PI * 2;
         double dist = 4.0 + random.nextDouble() * 6.0;
         int nx = player.getBlockX() + (int) Math.round(Math.cos(angle) * dist);
@@ -260,11 +266,10 @@ public final class AnomalyManager {
 
     private void applyResearchEcho(ServerLevel hollow, ServerPlayer player,
                                    BlockPos center, AnomalyDefinition def, long now) {
-        Long last = lastResearchEchoReward.get(player.getUUID());
-        if (last != null && now - last < 20 * 120) {
+        if (researchEchoCooldowns.isOnCooldown(player.getUUID(), now, 20 * 120)) {
             return;
         }
-        lastResearchEchoReward.put(player.getUUID(), now);
+        researchEchoCooldowns.mark(player.getUUID(), now);
         ResearchManager.grantFromSource(player, ResearchSources.DISCOVER_ANOMALY);
         player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
                 "message.nexus_echoes.research_echo"), false);
@@ -327,5 +332,16 @@ public final class AnomalyManager {
     /** Anchor point for the scanner's anomaly sweep (test seam). */
     Vec3 anomalyCenter(AnomalyInstance anomaly) {
         return new Vec3(anomaly.x() + 0.5, anomaly.y(), anomaly.z() + 0.5);
+    }
+
+    /**
+     * Drops transient per-player cooldown state (Phase 5.5 audit RISK-2).
+     * Called on logout so the static manager never accumulates entries for
+     * players who are gone — including across integrated-server restarts in
+     * the same JVM.
+     */
+    void onPlayerLogout(UUID playerId) {
+        riftTeleportCooldowns.clear(playerId);
+        researchEchoCooldowns.clear(playerId);
     }
 }

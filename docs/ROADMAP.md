@@ -157,10 +157,36 @@ Jigsaw structures (features are landmarks, not `Structure`/`StructureSet`), cust
 `noise_settings`, custom sounds. POST-PHASE-1 RUNTIME VALIDATION still applies (no real
 Forge client/server executed in this sandbox).
 
+## Phase 5.5 — DIMENSIONAL ARCHITECTURE AUDIT ✅ (2026-10-01, ADR-012)
+
+Formal read-only-first audit of everything Phase 5 introduced — the
+Hollow's dimensional architecture is the foundation The Ether will multiply,
+so it had to be proven sound before Phase 6.
+
+- Every dimensional class traced and classified (pure domain vs. MC adapter vs.
+  client); bootstrap/registry ordering, dimension-type codec fields (incl.
+  nested `monster_settings`), worldgen JSON chains, and all 148 JSONs verified
+- Fixed 4 genuine low-risk defects with regression tests: stale kinetic
+  derates after anomaly expiry, transient per-player cooldown leak (logout
+  cleanup), unguarded chunk access in the proximity discovery scan, 3 missing
+  lang keys (Phase 2 debt) — no Phase 1–4 behavior changed
+- Confirmed: research is the single progression authority; multiplayer
+  isolation holds by UUID-keyed SavedData; client/server boundary clean
+  (exhaustive import trace); no generic dimension framework built yet
+  (deliberate — the Ether will reveal the real abstractions)
+- **Gate: READY WITH CONDITIONS** — native Forge runtime validation still
+  pending on real hardware; full report: `docs/PHASE_5_5_AUDIT.md`
+
 ## Phase 6 — THE ETHER (directional)
 
 Second dimension: energetic/unstable reality, advanced resources, new physics phenomena,
 evidence that Hollow tech is structural to reality itself.
+
+**Phase 6 must respect the Phase 5.5 constraints:** research stays the single
+progression authority; pure domain first, thin adapters; no generic dimension
+framework yet; per-UUID state in server-wide SavedData; transient effects with
+documented owners and clearing paths; loaded-chunk guards on world scans.
+(see `docs/PHASE_5_5_AUDIT.md`)
 
 ## Phase 7 — ROBOTICS & AI (directional)
 

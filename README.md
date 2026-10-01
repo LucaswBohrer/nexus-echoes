@@ -98,10 +98,17 @@ dimensional and narrative mod, with enough engineering quality to sustain years 
 - [x] Progression: research branch `dimensional_resonance` → `hollow_exploration` (200) →
   `anomaly_studies` (250); 5 discovery-gated codex entries (`requiredDiscovery` is
   additive); discoveries/research per-UUID — shared dimension, private progression
-- [x] Unit tests green (215/215: 174 baseline preserved + 41 new travel/anomaly/discovery/codex/worldgen
-  suites); Forge sources compile green (130 classes, via javac against the
-  ForgeGradle-prepared `forge-official.jar` — the Gradle daemon could not start
-  in this sandbox); JAR rebuilt
+- [x] Unit tests green (225/225: 215 baseline preserved + 10 new audit regression
+  tests for derate clearing and transient cooldown cleanup); Forge sources compile green
+  (131 classes, via javac against the ForgeGradle-prepared `forge-official.jar` — the
+  Gradle daemon could not start in this sandbox); JAR rebuilt
+
+> **Phase 5.5 — Dimensional Architecture & Runtime Readiness Audit** (2026-10-01,
+> ADR-012): every dimensional class traced and classified; 4 genuine low-risk defects
+> fixed with regression tests (stale kinetic derates, transient cooldown leak on logout,
+> unguarded chunk access in discovery scan, 3 missing lang keys); zero blockers;
+> gate **READY WITH CONDITIONS** (native runtime validation pending on real hardware).
+> Full report: `docs/PHASE_5_5_AUDIT.md`.
 
 > Visual acceptance of the Hollow (terrain, fog, structures, entities, textures) is
 > explicitly pending Lucas's in-game review — see POST-PHASE-1 RUNTIME VALIDATION below.

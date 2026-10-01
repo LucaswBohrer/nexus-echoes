@@ -4,6 +4,36 @@ Architectural Decision Records. Newest first. Format: context → decision → c
 
 ---
 
+## ADR-012 — Phase 5.5: dimensional architecture audit (2026-10-01)
+
+**Context:** After Phase 5 introduced a full dimensional layer (dimension,
+travel, anomalies, discovery, entities, worldgen), the architecture needed a
+formal audit before The Ether multiplies it. Constraints: no new content,
+fix only genuine defects with the smallest safe change, do not weaken tests,
+no generic dimension framework yet.
+
+**Decision:** Audited every dimensional class (domain vs. adapter vs. client),
+bootstrap/registry ordering, the 1.20.1 dimension-type codec, worldgen data
+chains, anomaly/kinetic/travel lifecycles, research authority, multiplayer
+isolation, save/reload paths, client/server imports (exhaustive), networking
+directions, and all 148 JSONs. Fixed 4 genuine low-risk defects with
+regression tests: (1) stale kinetic derates when a node was removed
+mid-anomaly — derate clearing now covers every uncovered position;
+(2) static per-player cooldown maps in `AnomalyManager` never evicted — new
+pure `PlayerCooldowns` + logout cleanup; (3) proximity discovery scan could
+force chunk generation — added `hasChunkAt` guard; (4) 3 missing lang keys
+(Phase 2 debt) — added to both languages. Documented but unchanged:
+`dimension/api/HollowDimensions` couples the `api` package to MC types
+(works, acceptable); Jigsaw/NBT, custom noise, and entity textures stay
+deferred. Zero blockers; gate **READY WITH CONDITIONS** (conditions:
+native runtime validation still pending on real hardware; Phase 6 must follow
+the audit's architectural constraints — no premature dimension framework).
+
+**Consequences:** +1 production class (`PlayerCooldowns`), +2 test classes
+(10 tests), 225/225 green. Full report: `docs/PHASE_5_5_AUDIT.md`.
+
+---
+
 ## ADR-011 — Phase 5: The Hollow dimension architecture (2026-10-01)
 
 **Context:** Phase 5 adds the first real dimension. The audit (spec §1–2) found

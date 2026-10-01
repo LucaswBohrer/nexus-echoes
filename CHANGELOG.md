@@ -86,6 +86,23 @@ Format follows *Keep a Changelog* loosely; versions are mod versions.
   codex discovery gate, spire charge/brownout/decay, worldgen JSON integrity
   (174-test baseline preserved)
 
+### Phase 5.5 — DIMENSIONAL ARCHITECTURE & RUNTIME READINESS AUDIT
+
+- Formal audit of everything Phase 5 introduced (ADR-012,
+  `docs/PHASE_5_5_AUDIT.md`): dimensional layering, bootstrap/registry,
+  dimension-type codec, worldgen data chains, anomaly/kinetic/travel
+  lifecycles, research authority, multiplayer isolation, save/reload,
+  client/server boundary (exhaustive import trace), networking, all 148 JSONs
+- 4 genuine low-risk defects fixed with regression tests (10 new tests):
+  stale kinetic derates when a node was removed mid-anomaly; transient
+  per-player cooldown maps never evicted on logout (new pure
+  `PlayerCooldowns`); proximity discovery scan could force chunk generation
+  (`hasChunkAt` guard); 3 missing lang keys (Phase 2 debt)
+- No Phase 1–4 behavior changed; no content added; no tests weakened
+- Gate: **READY WITH CONDITIONS** (native Forge runtime validation still
+  pending on real hardware; Phase 6 must follow the audit's architectural
+  constraints)
+
 ### Known limitations (standing)
 
 - **POST-PHASE-1 RUNTIME VALIDATION**: no real Forge client/server has been

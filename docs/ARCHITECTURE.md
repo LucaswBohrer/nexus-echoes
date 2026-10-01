@@ -295,5 +295,12 @@ pure-domain → thin-MC-adapter split:
 - **Multiplayer:** one shared dimension; research and discoveries are
   per-UUID (`HollowDiscoveryData`, `ResearchSavedData`); anomalies, hazards,
   rewards and teleports are server-authoritative.
+- **Phase 5.5 audit (ADR-012):** the dimensional layering was formally
+  audited and hardened — derate clearing on anomaly expiry now covers every
+  uncovered position; transient per-player cooldowns live in a pure
+  `PlayerCooldowns` class with logout cleanup; the proximity discovery scan
+  guards with `hasChunkAt`. No generic dimension framework was built:
+  the second dimension (Ether) will reveal the real abstractions.
+  Full report: `docs/PHASE_5_5_AUDIT.md`.
 - Post-phase note: the Phase 4 line "`hollow_access` is a technology ID only"
   is now consumed — Phase 5 is the consumer.

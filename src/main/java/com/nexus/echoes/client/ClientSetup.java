@@ -1,7 +1,9 @@
 package com.nexus.echoes.client;
 
 import com.nexus.echoes.NexusEchoes;
+import com.nexus.echoes.client.screen.CrusherScreen;
 import com.nexus.echoes.client.screen.GeneratorScreen;
+import com.nexus.echoes.client.screen.ProcessorScreen;
 import com.nexus.echoes.client.screen.ResonatorScreen;
 import com.nexus.echoes.registry.NexusRegistries;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -24,6 +26,8 @@ public final class ClientSetup {
         event.enqueueWork(() -> {
             MenuScreens.register(NexusRegistries.RESONATOR_MENU.get(), ResonatorScreen::new);
             MenuScreens.register(NexusRegistries.GENERATOR_MENU.get(), GeneratorScreen::new);
+            MenuScreens.register(NexusRegistries.CRUSHER_MENU.get(), CrusherScreen::new);
+            MenuScreens.register(NexusRegistries.PROCESSOR_MENU.get(), ProcessorScreen::new);
         });
     }
 }

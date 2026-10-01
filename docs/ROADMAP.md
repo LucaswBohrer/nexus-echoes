@@ -43,16 +43,49 @@ stress-break behavior, rotating-part visualization beyond GUI readouts, datagen
 providers, 20-shaft TPS benchmark, real client/server homologation
 (POST-PHASE-1 RUNTIME VALIDATION still applies).
 
-## Phase 3 — TECHNOLOGY
+## Phase 3 — INDUSTRIAL PROCESSING ✅ (implemented 2026-10-01)
 
-**Goal:** ~7 functional machines demonstrating the machine framework.
+**Goal:** prove the loop `RESOURCE → PROCESSING → COMPONENT → TECHNOLOGY`
+on the kinetic network, with no third energy infrastructure.
 
-- Processing, storage, energy, automation, real recipes, GUIs, progression gating
-- JEI/REI integration, first automation (hoppers/pipes interact correctly)
-- Machine upgrade modules (speed/efficiency)
+**Implemented 2026-10-01:**
 
-**Exit criteria:** a fully automated line (ore → processed → stored) runs unattended;
-JEI shows all recipes.
+- `AbstractKineticMachineBlockEntity`: shared kinetic-machine base (registration,
+  snapshots, NBT, inventory, recipe cache, integer + fractional progress,
+  server-side processing, proportional brownout, 6-index `ContainerData`:
+  rpm / torque mN·m / node status / progress / maxProgress / machine status)
+- `ProcessingGovernor` (pure): brownout speed factor =
+  `min(deliveredRPM/requiredRPM, deliveredTorque/requiredTorque)`; machine
+  states `RUNNING / IDLE / NO_POWER / BROWNOUT / BLOCKED`
+- Crusher (120 RPM / 20 N·m, `crushing` recipes) and Processor
+  (240 RPM / 15 N·m, `processing` recipes) — numbers chosen so the Processor
+  genuinely needs a 2:1 gearbox off the 120 RPM / 50 N·m generator
+- Resonator refactored onto the new base (legacy `resonating` type + 5-index
+  GUI data untouched); its Phase 2 configured energy storage restored
+  verbatim — Phase 1 energy API contract unchanged
+- `ProcessingRecipe` API: input/output/processingTime/optional byproduct+chance;
+  fail-fast validation (`processingTime > 0`, chance in `[0,1]`); separate
+  `crushing`/`processing` types + serializers
+- Chain content: `nexus_ore → Crusher → 2 nexus_dust (+30% cobblestone) →
+  Processor → refined_nexus → (crafting) nexus_plate → nexus_component`;
+  crafting recipes for both machines (Crusher needs no processed Nexus —
+  no circular dependency)
+- Data-driven worldgen: configured + placed features + biome modifier
+  (`forge/biome_modifier/`, vein 7, count 7, -32..48, overworld)
+- Per-face sprites (`orientable`: front/side/top) + furnace-style `facing`
+  via shared `AbstractOrientedMachineBlock`; GUIs show input/output/progress/
+  RPM/torque/power/status; `/nexus kinetic` shows consumer demand
+  (`req=<rpm>rpm/<torque>Nm`)
+- Automation: input accepts insertion, output/byproduct are extract-only
+  (menu + capability), extraction allowed from all slots
+- 78/78 tests green (governor, kinetic chain incl.
+  Generator → Shaft → Gearbox → Crusher → Processor, NBT round-trips, recipe
+  validation); `javac` clean (93 classes); JAR reassembled
+
+**Not yet done (carried forward):** JEI/REI, datagen providers, crate, fluids,
+`active` blockstate (GUI shows status instead), recipe-ID persistence across
+reload, recipe-matching GameTests, real client/server homologation
+(POST-PHASE-1 RUNTIME VALIDATION still applies).
 
 ## Phase 4 — THE HOLLOW
 

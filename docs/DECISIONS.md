@@ -4,6 +4,70 @@ Architectural Decision Records. Newest first. Format: context → decision → c
 
 ---
 
+## ADR-009 — Phase 3: industrial processing on the kinetic network (2026-10-01)
+
+**Context:** Phase 3 must prove `RESOURCE → PROCESSING → COMPONENT → TECHNOLOGY`
+(Raw Resource → Crusher → Processor → Refined Material → Component → Machines)
+using the Phase 2 kinetic API, without a third energy infrastructure, without
+copy-pasting machine logic, and with data-driven recipes/worldgen.
+
+**Decision:**
+
+- **One shared kinetic-machine base.** `AbstractKineticMachineBlockEntity`
+  centralizes kinetic registration/snapshots/NBT, inventory, recipe cache,
+  integer progress + fractional accumulator, server-side processing,
+  proportional brownout and the 6-index `ContainerData`
+  (rpm, torque mN·m, node status, progress, maxProgress, machine status).
+  Concrete machines only declare required RPM/torque and their recipe type.
+  The Resonator was refactored onto this base (keeps its legacy `resonating`
+  type and 5-index menu data so its GUI is untouched).
+- **Phase 1 energy contract preserved.** The base takes explicit
+  `energyCapacity`/`energyMaxReceive`: the Resonator restores its Phase 2
+  configured storage (`NexusConfig.RESONATOR_CAPACITY/MAX_RECEIVE`) verbatim;
+  Crusher/Processor pass `0/0` — they hold no energy buffer at all. No second
+  energy system, no parallel buffer.
+- **Numbers are progression, not decoration.** Crusher: 120 RPM / 20 N·m;
+  Processor: 240 RPM / 15 N·m. A 120 RPM / 50 N·m generator through a 2:1
+  gearbox delivers 240 RPM / ~25 N·m — the Processor *requires* real
+  transmission, and a third consumer on one source causes overload.
+- **Brownout is proportional to the scarcest mechanical resource:**
+  `speedFactor = min(deliveredRPM/requiredRPM, deliveredTorque/requiredTorque)`
+  via the pure `ProcessingGovernor` (unit-tested). Fractional progress
+  accumulates so slow machines still advance smoothly.
+- **Machine states:** `RUNNING, IDLE, NO_POWER, BROWNOUT, BLOCKED` —
+  `BLOCKED` = output/byproduct has no room. Byproduct space is required even
+  though the drop is probabilistic: the alternative is voiding items, and the
+  machine must never destroy resources silently.
+- **Recipes are data-driven and validated.** `ProcessingRecipe`
+  (input/output/processingTime/optional byproduct+chance); separate
+  `crushing`/`processing` types + serializers. Constructor rejects
+  `processingTime <= 0`, chance outside `[0,1]`/NaN, empty byproduct stacks —
+  datapack errors fail fast instead of corrupting saves.
+- **Worldgen is data-driven and minimal.** One ore (`nexus_ore`, vein 7,
+  count 7, -32..48, overworld, `underground_ores`); configured + placed
+  features + biome modifier under `data/nexus_echoes/forge/biome_modifier/`
+  (singular — the plural path silently never loads on Forge 47.2.0).
+- **Automation rules are explicit and minimal.** Menu `OutputSlot`s block
+  manual insertion; `allowsExternalInsert` blocks hopper/pipe insertion into
+  output/byproduct (input accepts insertion; every slot allows extraction so
+  automation can pull wrong items or unload). Internal crafting uses
+  `setStackInSlot` and bypasses the rule.
+- **Per-face sprites + player facing.** Models use
+  `minecraft:block/orientable` (`front`/`side`/`top`); `facing` comes from a
+  shared `AbstractOrientedMachineBlock` (furnace-style, one place).
+  Resonator/Creative Cell stay orientation-agnostic — untouched.
+
+**Consequences:** The full chain
+`Generator → Shaft → Gearbox → Crusher → Processor` is covered by integration
+tests (brownout, overload, clutch, persistence round-trips); 78/78 unit tests
+green; `javac` clean (93 classes); JAR reassembled. Honest deltas: no JEI, no
+datagen, no crate, no fluids, no `active` blockstate (GUI shows status),
+recipe re-evaluated from input after reload (no recipe-ID persistence), recipe
+matching still needs a real Forge runtime (headless Bootstrap can't load
+client language assets). `POST-PHASE-1 RUNTIME VALIDATION` still pending.
+
+---
+
 ## ADR-008 — Phase 2 shipped as implemented; scope deltas documented (2026-10-01)
 
 **Context:** The Phase 2 spec asked for belts, stress-break, hand crank/windmill

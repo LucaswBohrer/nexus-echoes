@@ -11,9 +11,16 @@ import com.nexus.echoes.kinetic.mc.KineticGeneratorBlockEntity;
 import com.nexus.echoes.kinetic.mc.ShaftBlock;
 import com.nexus.echoes.machines.CreativeCellBlock;
 import com.nexus.echoes.machines.CreativeCellBlockEntity;
+import com.nexus.echoes.machines.CrusherBlock;
+import com.nexus.echoes.machines.CrusherBlockEntity;
+import com.nexus.echoes.machines.CrusherMenu;
+import com.nexus.echoes.machines.ProcessorBlock;
+import com.nexus.echoes.machines.ProcessorBlockEntity;
+import com.nexus.echoes.machines.ProcessorMenu;
 import com.nexus.echoes.machines.ResonatorBlock;
 import com.nexus.echoes.machines.ResonatorBlockEntity;
 import com.nexus.echoes.machines.ResonatorMenu;
+import com.nexus.echoes.machines.recipe.ProcessingRecipe;
 import com.nexus.echoes.machines.recipe.ResonatorRecipe;
 import com.nexus.echoes.machines.recipe.ResonatorRecipeSerializer;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -124,12 +131,42 @@ public final class NexusRegistries {
                             .requiresCorrectToolForDrops()
                             .sound(SoundType.METAL)));
 
+    // ----------------------------------------------- industrial (phase 3)
+
+    public static final RegistryObject<Block> CRUSHER = BLOCKS.register("crusher",
+            () -> new CrusherBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.METAL)
+                            .strength(3.5F, 6.0F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Block> PROCESSOR = BLOCKS.register("processor",
+            () -> new ProcessorBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.METAL)
+                            .strength(3.5F, 6.0F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.METAL)));
+
     // ------------------------------------------------------------------- items
 
     public static final RegistryObject<Item> NEXUS_SHARD = ITEMS.register("nexus_shard",
             () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> RESONANT_CRYSTAL = ITEMS.register("resonant_crystal",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> NEXUS_DUST = ITEMS.register("nexus_dust",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> REFINED_NEXUS = ITEMS.register("refined_nexus",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> NEXUS_PLATE = ITEMS.register("nexus_plate",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> NEXUS_COMPONENT = ITEMS.register("nexus_component",
             () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> NEXUS_ORE_ITEM = blockItem("nexus_ore", NEXUS_ORE);
@@ -141,6 +178,8 @@ public final class NexusRegistries {
     public static final RegistryObject<Item> GEAR_ITEM = blockItem("gear", GEAR);
     public static final RegistryObject<Item> GEARBOX_ITEM = blockItem("gearbox", GEARBOX);
     public static final RegistryObject<Item> CLUTCH_ITEM = blockItem("clutch", CLUTCH);
+    public static final RegistryObject<Item> CRUSHER_ITEM = blockItem("crusher", CRUSHER);
+    public static final RegistryObject<Item> PROCESSOR_ITEM = blockItem("processor", PROCESSOR);
 
     // ---------------------------------------------------------- block entities
 
@@ -161,6 +200,11 @@ public final class NexusRegistries {
     public static final RegistryObject<BlockEntityType<ClutchBlock.ClutchBlockEntity>> CLUTCH_BE =
             blockEntity("clutch", ClutchBlock.ClutchBlockEntity::new, CLUTCH);
 
+    public static final RegistryObject<BlockEntityType<CrusherBlockEntity>> CRUSHER_BE =
+            blockEntity("crusher", CrusherBlockEntity::new, CRUSHER);
+    public static final RegistryObject<BlockEntityType<ProcessorBlockEntity>> PROCESSOR_BE =
+            blockEntity("processor", ProcessorBlockEntity::new, PROCESSOR);
+
     // ------------------------------------------------------------------- menus
 
     public static final RegistryObject<MenuType<ResonatorMenu>> RESONATOR_MENU =
@@ -169,6 +213,12 @@ public final class NexusRegistries {
     public static final RegistryObject<MenuType<GeneratorMenu>> GENERATOR_MENU =
             menuType("kinetic_generator", () -> IForgeMenuType.create(GeneratorMenu::new));
 
+    public static final RegistryObject<MenuType<CrusherMenu>> CRUSHER_MENU =
+            menuType("crusher", () -> IForgeMenuType.create(CrusherMenu::new));
+
+    public static final RegistryObject<MenuType<ProcessorMenu>> PROCESSOR_MENU =
+            menuType("processor", () -> IForgeMenuType.create(ProcessorMenu::new));
+
     // ------------------------------------------------------------------ recipes
 
     public static final RegistryObject<RecipeType<ResonatorRecipe>> RESONATING =
@@ -176,6 +226,18 @@ public final class NexusRegistries {
 
     public static final RegistryObject<RecipeSerializer<ResonatorRecipe>> RESONATING_SERIALIZER =
             recipeSerializer("resonating", ResonatorRecipeSerializer::new);
+
+    public static final RegistryObject<RecipeType<ProcessingRecipe>> CRUSHING =
+            recipeType("crushing");
+
+    public static final RegistryObject<RecipeType<ProcessingRecipe>> PROCESSING =
+            recipeType("processing");
+
+    public static final RegistryObject<RecipeSerializer<ProcessingRecipe>> CRUSHING_SERIALIZER =
+            recipeSerializer("crushing", () -> new ProcessingRecipe.Serializer(CRUSHING.get()));
+
+    public static final RegistryObject<RecipeSerializer<ProcessingRecipe>> PROCESSING_SERIALIZER =
+            recipeSerializer("processing", () -> new ProcessingRecipe.Serializer(PROCESSING.get()));
 
     // ------------------------------------------------------------------ wiring
 

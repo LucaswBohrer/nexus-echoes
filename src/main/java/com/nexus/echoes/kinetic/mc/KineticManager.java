@@ -75,6 +75,11 @@ public final class KineticManager {
         return nodes.size();
     }
 
+    /** Provider registered at a position, or {@code null}. Read-only diagnostics. */
+    public KineticNodeProvider providerAt(BlockPos pos) {
+        return nodes.get(pos);
+    }
+
     /** Last simulated snapshots by network id (diagnostics). */
     public Map<Integer, KineticSnapshot> snapshots() {
         return Collections.unmodifiableMap(snapshots);

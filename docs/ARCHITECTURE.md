@@ -110,12 +110,29 @@ kinetic/
 
 ```
 Block (AbstractNexusMachineBlock)
+ ├── AbstractOrientedMachineBlock (furnace-style horizontal facing; Crusher/Processor)
  └── BlockEntity (AbstractNexusMachineBlockEntity)
-      ├── INexusEnergy storage
+      ├── INexusEnergy storage (Phase 1 API; capacity per machine)
       ├── progress / maxProgress (recipe processing)
       ├── serverTick(): consume energy → advance progress → complete → output
       ├── dirty-flag sync: packet only when energy/progress changed materially
       └── saveAdditional/load: full state
+```
+
+Kinetic machines (Phase 3, ADR-009):
+
+```
+AbstractKineticMachineBlockEntity extends AbstractNexusMachineBlockEntity
+ ├── required RPM / torque (constructor)
+ ├── KineticNodeProvider (CONSUMER): KineticManager registration, NodeState snapshots
+ ├── inventory (input/output/byproduct) + recipe cache (re-evaluated on input change)
+ ├── progress (int) + progressFrac (double): brownout advances fractional ticks
+ ├── ProcessingGovernor.speedFactor(): min(rpmRatio, torqueRatio) — proportional brownout
+ ├── MachineStatus: RUNNING / IDLE / NO_POWER / BROWNOUT / BLOCKED
+ ├── 6-index ContainerData: rpm, torque (mN·m), node status, progress, maxProgress, machine status
+ ├── energyCapacity/energyMaxReceive passthrough: Resonator restores its Phase 2
+ │   configured storage; Crusher/Processor pass 0/0 (no energy buffer at all)
+ └── allowsExternalInsert(): only INPUT_SLOT (output/byproduct extract-only)
 ```
 
 - **Server authority:** `serverTick` runs only on `ServerLevel`. Client block entities are

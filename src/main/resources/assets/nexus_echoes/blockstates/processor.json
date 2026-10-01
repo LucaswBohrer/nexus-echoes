@@ -1,0 +1,1 @@
+{"variants":{"facing=east":{"model":"nexus_echoes:block/processor","y":90},"facing=north":{"model":"nexus_echoes:block/processor"},"facing=south":{"model":"nexus_echoes:block/processor","y":180},"facing=west":{"model":"nexus_echoes:block/processor","y":270}}}

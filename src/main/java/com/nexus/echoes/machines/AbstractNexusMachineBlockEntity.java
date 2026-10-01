@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -101,8 +102,25 @@ public abstract class AbstractNexusMachineBlockEntity extends BlockEntity
                 setChanged();
                 onInventoryChanged(slot);
             }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                // Automation (hoppers/pipes) insertion rule. Manual insertion
+                // is governed by the menu's slots; internal machine output
+                // uses setStackInSlot and bypasses this check.
+                return allowsExternalInsert(slot, stack);
+            }
         };
         this.maxProgress = 0;
+    }
+
+    /**
+     * Whether automation (hoppers, pipes) may <b>insert</b> into a slot.
+     * Extraction is always allowed from every slot (including input, so
+     * automation can pull out wrong items or unload the machine).
+     */
+    protected boolean allowsExternalInsert(int slot, ItemStack stack) {
+        return true;
     }
 
     /** Entry point for the block's ticker. Server only — client BEs are display-only. */

@@ -54,7 +54,7 @@ public final class KineticCommand {
             source.sendFailure(Component.literal("No kinetic network under the targeted block."));
             return 0;
         }
-        describeNetwork(source, networkId, snapshot);
+        describeNetwork(source, manager, networkId, snapshot);
         return 1;
     }
 
@@ -68,12 +68,13 @@ public final class KineticCommand {
         source.sendSystemMessage(Component.literal(
                 "Kinetic networks: " + snapshots.size() + " (" + manager.nodeCount() + " nodes)"));
         for (Map.Entry<Integer, KineticSnapshot> e : snapshots.entrySet()) {
-            describeNetwork(source, e.getKey(), e.getValue());
+            describeNetwork(source, manager, e.getKey(), e.getValue());
         }
         return 1;
     }
 
-    private static void describeNetwork(CommandSourceStack source, int networkId, KineticSnapshot snapshot) {
+    private static void describeNetwork(CommandSourceStack source, KineticManager manager,
+                                        int networkId, KineticSnapshot snapshot) {
         String load = snapshot.loadFactor() == Double.POSITIVE_INFINITY
                 ? "∞" : String.format("%.0f%%", snapshot.loadFactor() * 100);
         source.sendSystemMessage(Component.literal(
@@ -90,8 +91,30 @@ public final class KineticCommand {
             source.sendSystemMessage(Component.literal(
                     "  " + id + " " + (int) s.rpm().value() + "rpm "
                             + String.format("%.1f", s.torque().newtonMeters()) + "Nm "
-                            + s.direction().name() + " " + statusTag(s.status())));
+                            + s.direction().name() + " " + statusTag(s.status())
+                            + consumerRequirement(manager, id)));
         }
+    }
+
+    /** Appends the consumer's demand (required rpm/torque) when the node is one. */
+    private static String consumerRequirement(KineticManager manager, String id) {
+        String[] parts = id.split(",");
+        if (parts.length != 3) {
+            return "";
+        }
+        try {
+            BlockPos pos = new BlockPos(
+                    Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+            KineticNodeProvider provider = manager.providerAt(pos);
+            if (provider != null
+                    && provider.getKineticRole() == com.nexus.echoes.kinetic.api.NodeRole.CONSUMER) {
+                return String.format(" req=%drpm/%.0fNm",
+                        (int) provider.getRequiredRpm().value(),
+                        provider.getRequiredTorque().newtonMeters());
+            }
+        } catch (NumberFormatException ignored) {
+        }
+        return "";
     }
 
     private static String statusTag(NodeStatus status) {

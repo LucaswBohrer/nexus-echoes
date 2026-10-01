@@ -1,0 +1,1 @@
+{"type": "minecraft:crafting_shaped", "pattern": ["IDI", "GRG", "IDI"], "key": {"I": {"item": "minecraft:iron_ingot"}, "D": {"item": "nexus_echoes:nexus_dust"}, "G": {"item": "nexus_echoes:gear"}, "R": {"item": "minecraft:redstone"}}, "result": {"item": "nexus_echoes:processor", "count": 1}}

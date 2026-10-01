@@ -32,6 +32,12 @@ public final class NexusCreativeTabs {
                         output.accept(NexusRegistries.GEAR.get());
                         output.accept(NexusRegistries.GEARBOX.get());
                         output.accept(NexusRegistries.CLUTCH.get());
+                        output.accept(NexusRegistries.NEXUS_DUST.get());
+                        output.accept(NexusRegistries.REFINED_NEXUS.get());
+                        output.accept(NexusRegistries.NEXUS_PLATE.get());
+                        output.accept(NexusRegistries.NEXUS_COMPONENT.get());
+                        output.accept(NexusRegistries.CRUSHER.get());
+                        output.accept(NexusRegistries.PROCESSOR.get());
                     })
                     .build());
 

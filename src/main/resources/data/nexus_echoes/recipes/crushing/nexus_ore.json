@@ -1,0 +1,1 @@
+{"type": "nexus_echoes:crushing", "ingredient": {"item": "nexus_echoes:nexus_ore"}, "result": {"item": "nexus_echoes:nexus_dust", "count": 2}, "byproduct": {"item": "minecraft:cobblestone", "count": 1, "chance": 0.3}, "processingTime": 200}

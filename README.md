@@ -42,6 +42,19 @@ dimensional and narrative mod, with enough engineering quality to sustain years 
 - [x] 50/50 unit tests green (11 Phase 1 + 39 kinetic); Forge sources compile green (71 classes)
 - [x] JAR `nexus_echoes-0.1.0.jar` rebuilt with Phase 2 content
 
+**Phase 3 — INDUSTRIAL PROCESSING** ✅ (implemented 2026-10-01, ADR-009).
+
+- [x] `AbstractKineticMachineBlockEntity`: shared kinetic-machine base (registration, snapshots, NBT, inventory, recipe cache, progress + fractional accumulator, proportional brownout, 6-index `ContainerData`)
+- [x] `ProcessingGovernor` (pure): brownout speed = `min(rpmRatio, torqueRatio)`; states `RUNNING / IDLE / NO_POWER / BROWNOUT / BLOCKED`
+- [x] Crusher (120 RPM / 20 N·m) and Processor (240 RPM / 15 N·m) — the Processor genuinely needs a 2:1 gearbox off the 120 RPM / 50 N·m generator
+- [x] Resonator refactored onto the new base; its Phase 2 configured energy storage restored verbatim (Phase 1 API contract unchanged)
+- [x] `ProcessingRecipe` API (`crushing` / `processing` types): input/output/processingTime/optional byproduct+chance, fail-fast validation
+- [x] Chain: `nexus_ore → Crusher → 2 nexus_dust (+30% cobblestone) → Processor → refined_nexus → nexus_plate → nexus_component`; machine crafting recipes (no circular dependency)
+- [x] Data-driven worldgen: configured + placed features + biome modifier (`forge/biome_modifier/`, vein 7, count 7, -32..48)
+- [x] Per-face sprites (`orientable`: front/side/top) + player `facing`; GUIs show input/output/progress/RPM/torque/power/status; `/nexus kinetic` shows consumer demand
+- [x] Automation: input accepts insertion, output/byproduct extract-only (menu + capability)
+- [x] 78/78 unit tests green; Forge sources compile green (93 classes); JAR rebuilt
+
 ### POST-PHASE-1 RUNTIME VALIDATION
 
 Native Forge client/server runtime was **not** homologated in this sandbox (no real

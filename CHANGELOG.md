@@ -1,0 +1,67 @@
+# Changelog
+
+All notable changes to **NEXUS: Echoes of Reality** (`nexus_echoes`) are recorded here.
+Format follows *Keep a Changelog* loosely; versions are mod versions.
+
+## [0.1.0] — 2026-10-01
+
+### Phase 1 — CORE
+
+- Forge 1.20.1 project, modular package structure
+- Registries (blocks, items, block entities, menus, recipe types), `ForgeConfigSpec`
+- `SimpleChannel` networking (server-authoritative sync)
+- `INexusEnergy` API + int-based storage; Nexus Ore / Shard / Resonant Crystal
+- Resonator (energy consumer with GUI: energy bar + progress)
+- Creative energy cell (test producer), data-driven `resonating` recipes
+- 11 unit tests
+
+### Phase 2 — KINETIC ENERGY
+
+- Pure-Java kinetic core: `Rpm` / `Torque` / `Power`, `KineticMath` (ADR-007)
+- `SimNetwork`: topology → simulation, demand referred to source, proportional
+  brownout, deterministic source conflicts
+- `KineticManager` per `ServerLevel`: dirty-topology caching, server-authoritative
+- Generator (120 RPM / 50 N·m), Shaft, Gear (12t), Gearbox (0.5/1/2/4),
+  Clutch; Resonator migrated to kinetic consumer (120 RPM / 30 N·m)
+- Vanilla BE update packets + `ContainerData` sync; NBT persistence
+- `/nexus kinetic` diagnostics
+- 39 new tests (50/50 green); 71 classes compiled
+
+### Phase 3 — INDUSTRIAL PROCESSING
+
+- `AbstractKineticMachineBlockEntity` (inventory, recipe cache, progress +
+  fractional accumulator, brownout, 6-index `ContainerData`)
+- `ProcessingGovernor` (pure): `RUNNING / IDLE / NO_POWER / BROWNOUT / BLOCKED`
+- Crusher (120 RPM / 20 N·m) + Processor (240 RPM / 15 N·m); chain
+  `nexus_ore → Crusher → 2 nexus_dust (+30% cobblestone) → Processor →
+  refined_nexus → nexus_plate → nexus_component`
+- Data-driven `crushing` / `processing` recipes; data-driven ore worldgen
+  (vein 7, count 7, -32..48)
+- Per-face sprites, machine GUIs, input/output automation, `/nexus kinetic`
+  consumer demand
+- 28 new tests (78/78 green); 93 classes compiled
+
+### Phase 4 — RESEARCH & TECHNOLOGICAL PROGRESSION
+
+- Research as a separate domain: definitions, dependency-graph validation
+  (duplicates / unknown prerequisites / self-dependencies / cycles rejected),
+  per-player state (points, completions, once-only sources), centralized
+  `ResearchService`, pure gating rules, data-driven codex
+- UUID-keyed `SavedData` persistence (survives death/clone/dimension/logout/restart)
+- Server-authoritative multiplayer: per-player state, 3 packets
+  (`ResearchSyncPacket` S2C, `OpenResearchPacket` + `BuyResearchPacket` C2S),
+  all mutations revalidated server-side
+- Research screen (keybind **R**) + codex screen; `/nexus research` command
+- 4 research definitions (50 → 100 → 150 → 250) gating Crusher / Processor /
+  component / `hollow_access` (future hook — no dimension code); 6 codex entries
+- Locked machines refuse craft (stack voided with explanation), placement and
+  GUI use — machine block entities untouched
+- 96 new tests (174/174 green); 122 classes compiled
+
+### Known limitations (standing)
+
+- **POST-PHASE-1 RUNTIME VALIDATION**: no real Forge client/server has been
+  executed in this environment; registration, GUIs, sync and the kinetic loop
+  still need in-game homologation.
+- Locked-recipe *visibility* is not hidden (vanilla has no per-player recipe
+  filter); locked crafts void the result with an explanation instead.

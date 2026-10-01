@@ -1,0 +1,1 @@
+{"category":"kinetic","cost":100,"description":"Master RPM and torque conversion through gearboxes. Unlocks the Processor, which demands real transmission work.","id":"nexus_echoes:kinetic_transmission","requirements":["nexus_echoes:industrial_foundations"],"title":"Kinetic Transmission","unlocks":["nexus_echoes:processor"]}

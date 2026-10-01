@@ -1,0 +1,1 @@
+{"category":"industrial","cost":150,"description":"Refine industrial output into precision components. Unlocks Nexus Component crafting.","id":"nexus_echoes:advanced_processing","requirements":["nexus_echoes:kinetic_transmission"],"title":"Advanced Processing","unlocks":["nexus_echoes:nexus_component"]}

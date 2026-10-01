@@ -55,6 +55,28 @@ dimensional and narrative mod, with enough engineering quality to sustain years 
 - [x] Automation: input accepts insertion, output/byproduct extract-only (menu + capability)
 - [x] 78/78 unit tests green; Forge sources compile green (93 classes); JAR rebuilt
 
+**Phase 4 — RESEARCH & TECHNOLOGICAL PROGRESSION** ✅ (implemented 2026-10-01, ADR-010).
+
+- [x] Pure research domain: `ResearchDefinition`/`ResearchGraph` (duplicate/unknown/self/cycle
+  rejection, deterministic topological order), `PlayerResearchState` (points/completed/claimed
+  sources, NBT round-trip with clamping + malformed-ID skipping), `ResearchService` (single
+  authority: sources, eligibility, atomic completion, unlock queries), `ResearchGating` (pure
+  craft/place/use rules)
+- [x] Persistence: `ResearchSavedData` in the Overworld `DimensionDataStorage`, keyed by player
+  UUID — survives death/clone/dimension/log-out/restart
+- [x] Server authority + multiplayer: per-player state, no global static state, no client
+  authority; three packets (`ResearchSyncPacket` S2C, `OpenResearchPacket` + `BuyResearchPacket`
+  C2S), all mutations revalidated server-side
+- [x] Data-driven: 4 research definitions (`industrial_foundations` 50 → `kinetic_transmission`
+  100 → `advanced_processing` 150 → `dimensional_resonance` 250) + 6 codex entries with
+  `requiredResearch` visibility, all under `data/nexus_echoes/` with fail-fast reload validation
+- [x] GUI: research screen (keybind **R**, points, list with COMPLETE/RESEARCH/NEED PTS/LOCKED,
+  tooltips, buy via C2S) + codex screen (visible entries only); locked Crusher/Processor refuse
+  GUI/craft/placement with an explanation
+- [x] `/nexus research` command (status, list, add/complete/reset with permission level 2)
+- [x] 174/174 unit tests green (78 previous + 96 research); Forge sources compile green
+  (122 classes); JAR rebuilt
+
 ### POST-PHASE-1 RUNTIME VALIDATION
 
 Native Forge client/server runtime was **not** homologated in this sandbox (no real

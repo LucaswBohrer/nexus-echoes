@@ -36,7 +36,23 @@ com.nexus.echoes
 │   ├── ClientSetup.java        # screen/menu registration (client-only)
 │   └── screen/
 │       └── ResonatorScreen.java
-└── (future) dimensions/ worldgen/ entities/ ai/ research/ codex/ rendering/
+├── research/                   # Phase 4: pure domain + mc adapter + client
+│   ├── ResearchDefinition.java # namespaced id, title, desc, category, cost>0, prereqs, unlocks
+│   ├── ResearchGraph.java      # validation: duplicates/unknown/self/cycles (DFS)
+│   ├── PlayerResearchState.java# points, completed, claimed sources; NBT round-trip
+│   ├── ResearchService.java    # single authority: sources/eligibility/completion/unlocks
+│   ├── ResearchSource(s).java  # event-driven point sources (id, points, oncePerPlayer)
+│   ├── ResearchGating.java     # pure craft/place/use rules per technology
+│   ├── ResearchTechnologies.java # nexus_echoes:crusher/:processor/:nexus_component/:hollow_access
+│   ├── codex/                  # CodexEntry + CodexVisibility (pure)
+│   ├── mc/                     # ResearchSavedData (UUID-keyed), ResearchManager,
+│   │                           #   definition/codex reload loaders, events, /nexus research,
+│   │                           #   ResearchGatekeeper (server-side enforcement)
+│   ├── network/                # ResearchSyncPacket (S2C), OpenResearchPacket (C2S),
+│   │                           #   BuyResearchPacket (C2S, server revalidates)
+│   └── client/                 # ResearchClientState (read-only snapshot), keybind R,
+│                               #   ResearchScreen + CodexScreen (client-side, no menu)
+└── (future) dimensions/ worldgen/ entities/ ai/ rendering/
 ```
 
 **Rule:** content packages depend on `energy/api`, `machines` (abstracts), `network`,
@@ -149,8 +165,11 @@ AbstractKineticMachineBlockEntity extends AbstractNexusMachineBlockEntity
 - One `SimpleChannel`: `NexusNetwork.CHANNEL`, protocol version `"1"`.
 - Packet ids assigned in `NexusNetwork.register()` — append-only; never reuse an id.
 - All packets are versioned; a version mismatch fails fast with a clear message.
-- Phase 1 packets: `MachineSyncPacket` (S2C). C2S packets (e.g. GUI buttons) will follow
+- Phase 1 packets: `MachineSyncPacket` (S2C). C2S packets (e.g. GUI buttons) follow
   the same registration pattern.
+- Phase 4 packets: `ResearchSyncPacket` (S2C: points + completed set, on login and
+  every mutation), `OpenResearchPacket` (C2S: snapshot request),
+  `BuyResearchPacket` (C2S: `researchId`, fully revalidated server-side).
 
 ## 5. Registries
 
@@ -184,6 +203,9 @@ Registered in Phase 1: blocks, items, `BlockEntityType`s, `MenuType`s, `RecipeTy
    client block entity for logic.
 3. Energy transfer happens server-side between block entities.
 4. Packets carry positions, not block entity references.
+5. Research is server-authoritative per player (UUID-keyed `SavedData`):
+   the client holds a read-only snapshot; buys are C2S requests the server
+   revalidates from scratch.
 
 ## 9. Performance rules
 
@@ -209,3 +231,30 @@ Phase 1: detection helpers only, no hooks yet. JEI/REI display support is a Phas
 - **In-game validation** (checklist, manual for now): place cell + resonator, verify
   processing, GUI values, relog persistence, dedicated-server smoke test.
 - Later: game-test framework for multiblocks/dimensions/portals.
+- Phase 4: 96 unit tests for the research domain — graph validation
+  (duplicates, unknown prerequisites, self-dependencies, cycles), point
+  accounting, service rules (sources, prerequisites, costs, atomicity,
+  unlocks), NBT persistence (round-trips, defaults, malformed data,
+  clone/respawn simulation), multiplayer isolation, definition/codex
+  validation (including the shipped JSONs), gating rules, codex visibility
+  and a full zero-to-`dimensional_resonance` integration progression.
+
+## 12. Research & progression (Phase 4)
+
+Research is a separate domain, not an energy type. The pure core
+(`ResearchDefinition`, `ResearchGraph`, `PlayerResearchState`,
+`ResearchService`, `ResearchGating`, codex) knows nothing about Minecraft;
+the `mc` adapter bridges it (`ResearchSavedData`, `ResearchManager`,
+reload loaders, events, `/nexus research`); networking is three packets on
+the existing channel; the client shows read-only screens (keybind **R**).
+
+- Definitions and codex entries are JSON under `data/nexus_echoes/`,
+  validated fail-fast on reload (malformed IDs, `cost <= 0`, unknown
+  prerequisites, duplicates, cycles).
+- Costs and unlocks live in the JSON, not in `NexusConfig` (config is
+  operator policy, not progression values).
+- Gating is enforced server-side at three points — craft (voids the taken
+  stack with an explanation), placement (cancelled), machine `use()`
+  (refuses the GUI) — without changing machine block entities.
+- `nexus_echoes:hollow_access` is a technology ID only: Phase 5 consumes the
+  unlock; no dimension/portal/worldgen code exists.

@@ -6,8 +6,10 @@ import com.nexus.echoes.client.screen.GeneratorScreen;
 import com.nexus.echoes.client.screen.ProcessorScreen;
 import com.nexus.echoes.client.screen.ResonatorScreen;
 import com.nexus.echoes.registry.NexusRegistries;
+import com.nexus.echoes.research.client.ResearchKeys;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -29,5 +31,10 @@ public final class ClientSetup {
             MenuScreens.register(NexusRegistries.CRUSHER_MENU.get(), CrusherScreen::new);
             MenuScreens.register(NexusRegistries.PROCESSOR_MENU.get(), ProcessorScreen::new);
         });
+    }
+
+    @SubscribeEvent
+    public static void onRegisterKeys(RegisterKeyMappingsEvent event) {
+        event.register(ResearchKeys.OPEN_RESEARCH);
     }
 }

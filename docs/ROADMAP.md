@@ -87,7 +87,56 @@ on the kinetic network, with no third energy infrastructure.
 reload, recipe-matching GameTests, real client/server homologation
 (POST-PHASE-1 RUNTIME VALIDATION still applies).
 
-## Phase 4 — THE HOLLOW
+## Phase 4 — RESEARCH & TECHNOLOGICAL PROGRESSION ✅ (implemented 2026-10-01)
+
+**Goal:** turn research into the player's path to technology:
+`PLAYER → RESEARCH → TECHNOLOGY → UNLOCK` — without dimensions, portals,
+new energy, JEI/REI or a quest system.
+
+**Implemented 2026-10-01 (ADR-010):**
+
+- Pure domain: `ResearchDefinition` (namespaced id, title, description,
+  category, cost > 0, prerequisites, unlocks); `ResearchGraph` validates
+  duplicates, unknown prerequisites, self-dependencies and cycles
+  (DFS), with deterministic topological order
+- `PlayerResearchState`: integer points, completed set, once-only source
+  claims; NBT round-trip (missing fields default, negative points clamp,
+  malformed IDs skipped)
+- `ResearchService`: the single authority — source grants, `canComplete`,
+  atomic `completeResearch` (failed validation spends nothing), duplicate
+  prevention, `isUnlocked`, `available()`
+- Sources: `discover_nexus_ore` (+10 once), `mine_nexus_ore` (+2 repeatable),
+  `craft_gear` (+10 once)
+- Technologies: `nexus_echoes:crusher`, `:processor`, `:nexus_component`,
+  `:hollow_access` (future hook only — no dimension/portal/worldgen code)
+- Persistence: `ResearchSavedData` (`nexus_echoes_research`) in the
+  Overworld `DimensionDataStorage`, UUID-keyed — survives
+  death/clone/dimension/log-out/restart; `setDirty()` on mutation
+- Networking: `ResearchSyncPacket` (S2C snapshot on login + every
+  mutation), `OpenResearchPacket` (C2S snapshot request),
+  `BuyResearchPacket` (C2S, fully revalidated server-side); client keeps a
+  read-only snapshot (`ResearchClientState`) — no client authority
+- GUI: research screen on keybind **R** (points, research list with
+  COMPLETE / RESEARCH / NEED PTS / LOCKED, tooltips, buy button,
+  codex button), codex screen (only visible entries, back button)
+- Gating (all server-side, `ResearchGating` pure rules, machine BEs
+  untouched): locked machine craft voids the stack with an explanation
+  (`ItemCraftedEvent` fires post-hoc from `ResultSlot`); locked placement
+  cancelled (`BlockEvent.EntityPlaceEvent`); `use()` on locked Crusher /
+  Processor returns `InteractionResult.FAIL`
+- `/nexus research` command: status, list, add / complete / reset
+  (permission level 2)
+- Data: 4 research JSONs + 6 codex JSONs under `data/nexus_echoes/`,
+  fail-fast `SimpleJsonResourceReloadListener` validation; lang entries
+- 174/174 tests green (78 previous + 96 new); `javac` clean (122 classes);
+  JAR reassembled
+
+**Known limitations:** recipe visibility is not hidden (vanilla has no
+per-player recipe filter — locked crafts void with an explanation);
+POST-PHASE-1 RUNTIME VALIDATION still applies (no real Forge
+client/server executed in this sandbox).
+
+## Phase 5 — THE HOLLOW (planned, not started)
 
 **Goal:** prove NEXUS is simultaneously a tech mod and an exploration mod.
 
@@ -101,23 +150,23 @@ reload, recipe-matching GameTests, real client/server homologation
 **Exit criteria:** a player can progress Overworld → Hollow using only in-game
 discoveries; the dimension feels like a different reality, not a reskin.
 
-## Phase 5 — THE ETHER (directional)
+## Phase 6 — THE ETHER (directional)
 
 Second dimension: energetic/unstable reality, advanced resources, new physics phenomena,
 evidence that Hollow tech is structural to reality itself.
 
-## Phase 6 — ROBOTICS & AI (directional)
+## Phase 7 — ROBOTICS & AI (directional)
 
 Modular robots (tasks, inventory, energy, navigation, machine interaction);
 AI architecture (states, goals, priorities, perception) — some entities feel
 almost conscious. Feeds the lore.
 
-## Phase 7 — THE CORE / THE NEXUS (directional)
+## Phase 8 — THE CORE / THE NEXUS (directional)
 
 Final layer: extreme technology, final energy, control systems, large-scale anomalies,
 answers about the Nexus, preparation for the final confrontation.
 
-## Phase 8 — ENDGAME: THE ARCHITECT (directional)
+## Phase 9 — ENDGAME: THE ARCHITECT (directional)
 
 Boss as culmination: arena, phases, environment manipulation, Nexus systems as
 mechanics, narrative integration. Not "a mob with lots of HP".

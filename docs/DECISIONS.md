@@ -4,6 +4,99 @@ Architectural Decision Records. Newest first. Format: context → decision → c
 
 ---
 
+## ADR-010 — Phase 4: research & technological progression (2026-10-01)
+
+**Context:** Phase 4 must add the first real technology-progression layer:
+`EXPLORE → DISCOVER → RESEARCH → UNLOCK → BUILD → ADVANCE`. Research is a
+*progression* system, not another energy system. It must be per-player,
+server-authoritative, persisted, data-driven, multiplayer-safe, and able to
+gate Phase 3 content — without touching the kinetic/machine simulation, and
+without implementing any dimension (Hollow/Ether/Core are explicitly out of
+scope; only an unlock *hook* for them may exist).
+
+**Decision:**
+
+- **Research is its own clean domain.** Pure core under
+  `com.nexus.echoes.research` (definition, dependency graph, player state,
+  service, sources, codex) with no Minecraft imports except NBT for
+  serialization (NBT already serializes headlessly in tests). Minecraft
+  adaptation lives in `research.mc` (SavedData, reload listeners, events,
+  commands, packets, menus). The core never knows about players, levels or
+  packets; the adapter never owns progression rules.
+- **State home: server-side `SavedData`, keyed by player UUID.**
+  `ResearchSavedData` lives in the overworld's `DimensionDataStorage` and
+  maps `UUID → PlayerResearchState` (points int, completed research set,
+  claimed once-only sources). UUID-keying means death, respawn/clone,
+  dimension changes and logout/login need no special handling — the row
+  survives all of them. `setDirty()` on every mutation; disk persistence
+  covers server restarts. No player persistent-NBT, no capabilities, no
+  global static state, no client authority.
+- **Research points are integers, deterministic, server-authoritative.**
+  Sources are event-driven through a small `ResearchSource` interface
+  (`id`, `points`, `oncePerPlayer`). Initial set: mining `nexus_ore`
+  (+2, repeatable), first `nexus_ore` mined (+10, once), first `gear`
+  crafted (+10, once). Negative gains are rejected; spending requires
+  balance; duplicate completion is impossible (completed set).
+- **Definitions are data-driven JSON** under
+  `data/nexus_echoes/research/*.json`, loaded by a
+  `SimpleJsonResourceReloadListener` on both sides (server authoritative
+  for logic, client copy for GUI display). Validation is fail-fast at load:
+  malformed IDs, `cost <= 0`, unknown prerequisites, duplicate IDs and
+  dependency cycles are rejected with clear errors. Initial tree:
+  `industrial_foundations` (50) → `kinetic_transmission` (100) →
+  `advanced_processing` (150) → `dimensional_resonance` (250). Costs live in
+  the JSON, not in `NexusConfig` (config is for operator policy, not
+  progression values).
+- **Unlocks are a centralized query, not scattered conditionals.**
+  Definitions declare `unlocks: [<technology-id>]`;
+  `ResearchService.isUnlocked(state, technologyId)` is the single choke
+  point. Initial technologies: `nexus_echoes:crusher`,
+  `nexus_echoes:processor`, `nexus_echoes:nexus_component`,
+  `nexus_echoes:hollow_access` (future hook — no dimension, portal, blocks
+  or worldgen are registered; Phase 5+ consumes the unlock).
+- **Gating model (no machine-BE changes, no recipe duplication).**
+  Forge has no clean per-player recipe hook (`ItemCraftedEvent` fires
+  post-hoc from `ResultSlot`), so gating is enforced where it is provably
+  correct, all server-side, all decided by the pure `ResearchGating` rule:
+  (1) `BlockEvent.EntityPlaceEvent` cancels placement of locked machine
+  blocks; (2) `CrusherBlock`/`ProcessorBlock.use()` refuses to open the GUI
+  without the unlock; (3) `ItemCraftedEvent` voids the crafted stack
+  (`getCrafting().setCount(0)` — verified to fire from `ResultSlot` on the
+  taken stack) and explains the missing research. Locked technology cannot
+  be used through the client; the machine BEs never learn about research.
+- **Instant unlocks, no active-research timers.** `completeResearch`
+  validates prerequisites + cost atomically and records completion. No
+  in-progress state is introduced because the design doesn't need it.
+- **Networking: three packets on the existing channel.**
+  C2S `OpenResearchPacket` (keybind pressed → client asks for a snapshot),
+  C2S `BuyResearchPacket(researchId)` (server validates via
+  `ResearchService`, never trusts the client),
+  S2C `ResearchSyncPacket` (points + completed set; sent on login and on
+  every mutation). The research UI is a client-side `Screen` opened directly
+  by the keybind (no `ResearchMenu`/container is registered — the UI has no
+  slots, so server-opened menus would add plumbing for nothing); the client
+  keeps a read-only snapshot (`ResearchClientState`) and every mutation is
+  server-authoritative via C2S+S2C round-trip. The Codex screen reuses the
+  synced completed-set plus the client's local codex entries.
+- **Codex is data-driven documentation + lore, not a recipe book.**
+  Entries under `data/nexus_echoes/codex/*.json`
+  (title/category/content/optional `requiredResearch`); visibility is a pure
+  function of the completed set. First layer only: introduction, kinetic
+  systems, industrial processing, research methods, and two subtle lore
+  fragments that ask "what is the Nexus?" without answering it.
+
+**Consequences:** New tests cover points, prerequisites, cycles, unlocks,
+NBT persistence, clone simulation, multiplayer isolation, definition
+validation, gating rules, codex visibility and a full progression
+integration — **174/174 green** (78 previous + 96 new, 2026-10-01). Honest deltas: recipe
+*visibility* is not hidden (vanilla has no per-player recipe filter —
+attempting locked crafts voids the result with an explanation instead);
+machine BEs are research-agnostic by design; codex has no page-turning art;
+`POST-PHASE-1 RUNTIME VALIDATION` still pending (no real Forge client/server
+has run this).
+
+---
+
 ## ADR-009 — Phase 3: industrial processing on the kinetic network (2026-10-01)
 
 **Context:** Phase 3 must prove `RESOURCE → PROCESSING → COMPONENT → TECHNOLOGY`

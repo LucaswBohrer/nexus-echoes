@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["IGI","GCG","IGI"],"key":{"I":{"item":"minecraft:iron_block"},"G":{"item":"nexus_echoes:gear"},"C":{"item":"nexus_echoes:resonant_crystal"}},"result":{"count":1,"item":"nexus_echoes:kinetic_generator"}}

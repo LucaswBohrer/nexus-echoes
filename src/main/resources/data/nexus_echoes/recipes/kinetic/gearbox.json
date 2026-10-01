@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["IGI","GRG","IGI"],"key":{"I":{"item":"minecraft:iron_ingot"},"G":{"item":"nexus_echoes:gear"},"R":{"item":"minecraft:redstone"}},"result":{"count":1,"item":"nexus_echoes:gearbox"}}

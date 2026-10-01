@@ -1,0 +1,12 @@
+{
+  "title": "Anomalies: A Field Guide",
+  "category": "exploration",
+  "content": [
+    "Reality is thin in the Hollow and it tears. Four kinds of anomaly have been cataloged:",
+    "STATIC FIELDS slow machines and men alike \u2014 kinetic networks inside one run derated, brownouts included. ECHO BURSTS scramble the senses with resonant feedback. SPATIAL RIFTS displace whatever stands inside them, and sometimes something comes back through. RESEARCH ECHOS are the rarest: standing waves of information that teach, once, if you listen.",
+    "The anomaly ward suppresses every effect within 24 blocks. It needs no power \u2014 only placement. Deep expeditions carry one.",
+    "Anomalies are server-side weather, not client tricks. Two travelers see the same tear."
+  ],
+  "requiredResearch": "nexus_echoes:hollow_exploration",
+  "requiredDiscovery": "nexus_echoes:anomaly_seen"
+}

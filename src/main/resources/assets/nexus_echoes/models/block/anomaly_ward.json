@@ -1,0 +1,1 @@
+{"parent": "minecraft:block/orientable", "textures": {"front": "nexus_echoes:block/anomaly_ward_front", "side": "nexus_echoes:block/anomaly_ward_side", "top": "nexus_echoes:block/anomaly_ward_top"}}

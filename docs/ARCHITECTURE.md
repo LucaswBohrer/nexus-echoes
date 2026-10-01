@@ -258,3 +258,42 @@ the existing channel; the client shows read-only screens (keybind **R**).
   (refuses the GUI) — without changing machine block entities.
 - `nexus_echoes:hollow_access` is a technology ID only: Phase 5 consumes the
   unlock; no dimension/portal/worldgen code exists.
+
+## 13. The Hollow (Phase 5)
+
+The dimension module (`com.nexus.echoes.dimension`) repeats the established
+pure-domain → thin-MC-adapter split:
+
+```
+├── api/            # dimension/biome keys (HollowDimensions)
+├── travel/         # HollowTravelService: permission + safe-spawn over an injected height fn
+├── anomaly/        # AnomalyDefinition/AnomalyInstance/AnomalyService: caps, expiry, effects
+├── discovery/      # DiscoveryIds (enter_hollow, obelisk, ruin_found, anomaly_seen, deep_hollow, memory_fragment)
+├── block/          # DimensionalSpireBlock (+charge/brownout/decay), ObeliskCoreBlock, AnomalyWardBlock,
+│                   #   UnstableFractureBlock, ResonantGrowthBlock, HollowStone/Ore/etc.
+├── item/           # MemoryFragmentItem, ResonanceScannerItem (obelisk triage)
+├── entity/         # scrap_crawler, hollow_stalker, resonant_wisp, rift_phantom (+models/renderers)
+├── worldgen/       # 4 seeded Feature<NoneFeatureConfiguration> (obelisk, ruin, vault, fracture_spire)
+└── mc/             # HollowTravel (ITeleporter), AnomalyManager (20-tick sweeps, cap 8),
+                    #   AnomalySavedData + HollowDiscoveryData + PlayerTravelData (SavedData),
+                    #   DiscoverySync (S2C), HollowCommand (/nexus hollow), HollowForgeEvents
+```
+
+- **Travel is technological, not a portal.** The spire is a kinetic consumer
+  (240 RPM / 25 N·m — needs a 2:1 gearbox off the standard 120 RPM generator);
+  it charges 60 s at full power (brownout slows, never stalls) and **drains
+  to zero on crossing**. Every trip must be earned. The obelisk is the only
+  return: right-click returns the traveler to their per-player origin link.
+- **Anomalies never touch the simulator.** `static_field` interference is a
+  transient derate map in `KineticManager` (`setDerate`, consulted when
+  building `SimNode`s); the pure simulation code is untouched. Presentation
+  is vanilla particles only — no custom packets, no client authority.
+- **Worldgen honesty:** dimension/biomes/features are data-driven JSON; the
+  dimension reuses the vanilla overworld noise settings; landmarks are
+  `Feature`s placed via configured/placed JSON — explicitly *not*
+  `Structure`/`StructureSet` (no Jigsaw authoring pipeline exists here).
+- **Multiplayer:** one shared dimension; research and discoveries are
+  per-UUID (`HollowDiscoveryData`, `ResearchSavedData`); anomalies, hazards,
+  rewards and teleports are server-authoritative.
+- Post-phase note: the Phase 4 line "`hollow_access` is a technology ID only"
+  is now consumed — Phase 5 is the consumer.

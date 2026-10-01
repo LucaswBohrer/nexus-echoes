@@ -1,0 +1,13 @@
+{
+  "id": "nexus_echoes:hollow_exploration",
+  "title": "Hollow Exploration",
+  "description": "Map the ruins, catalog the fractures, and learn to quiet them. Unlocks the Anomaly Ward.",
+  "category": "exploration",
+  "cost": 200,
+  "requirements": [
+    "nexus_echoes:dimensional_resonance"
+  ],
+  "unlocks": [
+    "nexus_echoes:anomaly_ward"
+  ]
+}

@@ -77,6 +77,35 @@ dimensional and narrative mod, with enough engineering quality to sustain years 
 - [x] 174/174 unit tests green (78 previous + 96 research); Forge sources compile green
   (122 classes); JAR rebuilt
 
+**Phase 5 — THE HOLLOW** ✅ (implemented 2026-10-01, ADR-011).
+
+- [x] Dimension module (`dimension/`): pure domain (`api`, `travel`, `anomaly`, `discovery`) +
+  thin MC adapters (`HollowTravel`, `AnomalyManager`, `AnomalySavedData`,
+  `HollowDiscoveryData`, `PlayerTravelData`, `HollowCommand`, `HollowForgeEvents`)
+- [x] The Hollow: custom dimension (`the_hollow`), 4 biomes (`hollow_wastes`,
+  `machine_graveyard`, `resonant_forest`, `deep_hollow`), reuses vanilla overworld noise
+  settings; 4 custom features (`obelisk`, `ruin`, `vault`, `fracture_spire`) + ore/growth
+  patches, all data-driven configured/placed JSON
+- [x] Travel: **Dimensional Spire** (kinetic consumer 240 RPM/25 N·m, 60 s charge, drains on
+  crossing) as the only entry; **obelisk** as the only return (per-player origin links);
+  server-authoritative via `ITeleporter` + pure safe-spawn search; gated on `hollow_access`
+- [x] Anomalies: 4 types (static field, gravity ripple, temporal echo, fracture surge),
+  server-owned, 20-tick sweeps, cap 8, vanilla-particle presentation, transient kinetic
+  derate that never touches the pure simulator; **Anomaly Ward** (24-block suppression)
+- [x] Content: 9 blocks, `memory_fragment` + `resonance_scanner` items, 4 entities
+  (scrap crawler, hollow stalker, resonant wisp, rift phantom) with models/renderers,
+  procedural 16×16 placeholder textures
+- [x] Progression: research branch `dimensional_resonance` → `hollow_exploration` (200) →
+  `anomaly_studies` (250); 5 discovery-gated codex entries (`requiredDiscovery` is
+  additive); discoveries/research per-UUID — shared dimension, private progression
+- [x] Unit tests green (215/215: 174 baseline preserved + 41 new travel/anomaly/discovery/codex/worldgen
+  suites); Forge sources compile green (130 classes, via javac against the
+  ForgeGradle-prepared `forge-official.jar` — the Gradle daemon could not start
+  in this sandbox); JAR rebuilt
+
+> Visual acceptance of the Hollow (terrain, fog, structures, entities, textures) is
+> explicitly pending Lucas's in-game review — see POST-PHASE-1 RUNTIME VALIDATION below.
+
 ### POST-PHASE-1 RUNTIME VALIDATION
 
 Native Forge client/server runtime was **not** homologated in this sandbox (no real

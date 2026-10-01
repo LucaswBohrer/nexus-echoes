@@ -1,0 +1,12 @@
+{
+  "title": "Memory Fragments",
+  "category": "lore",
+  "content": [
+    "The fragments are not data. They are memories, pressed into resonant crystal like flowers in a book \u2014 and they are not yours.",
+    "Right-click to analyze one. The first analysis teaches the Codex something new; every analysis pays research points.",
+    "Rift phantoms carry them. Vaults hoard them. The wrecks of the Machine Graveyard occasionally yield one to a careful pickaxe.",
+    "Whose memories are these? The Codex has no answer yet. The handwriting in the etched ratios and the voice in the fragments share certain... habits."
+  ],
+  "requiredResearch": "nexus_echoes:dimensional_resonance",
+  "requiredDiscovery": "nexus_echoes:memory_fragment"
+}

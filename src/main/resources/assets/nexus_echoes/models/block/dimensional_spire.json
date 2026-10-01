@@ -1,0 +1,1 @@
+{"parent": "minecraft:block/cube_column", "textures": {"side": "nexus_echoes:block/dimensional_spire_side", "end": "nexus_echoes:block/dimensional_spire_top"}}

@@ -38,6 +38,18 @@ public final class NexusCreativeTabs {
                         output.accept(NexusRegistries.NEXUS_COMPONENT.get());
                         output.accept(NexusRegistries.CRUSHER.get());
                         output.accept(NexusRegistries.PROCESSOR.get());
+                        output.accept(NexusRegistries.HOLLOW_STONE.get());
+                        output.accept(NexusRegistries.RUSTED_PLATING.get());
+                        output.accept(NexusRegistries.ASHEN_SOIL.get());
+                        output.accept(NexusRegistries.HOLLOW_ORE.get());
+                        output.accept(NexusRegistries.DIMENSIONAL_SPIRE.get());
+                        output.accept(NexusRegistries.OBELISK_CORE.get());
+                        output.accept(NexusRegistries.ANOMALY_WARD.get());
+                        output.accept(NexusRegistries.UNSTABLE_FRACTURE.get());
+                        output.accept(NexusRegistries.RESONANT_GROWTH.get());
+                        output.accept(NexusRegistries.MEMORY_FRAGMENT.get());
+                        output.accept(NexusRegistries.RESONANCE_SCANNER.get());
+                        output.accept(NexusRegistries.RESONANT_SHARD.get());
                     })
                     .build());
 

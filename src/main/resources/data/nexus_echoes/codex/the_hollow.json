@@ -1,0 +1,12 @@
+{
+  "title": "The Hollow",
+  "category": "exploration",
+  "content": [
+    "Past the charged spire lies the Hollow: a folded-off shard of reality where something industrial died a long time ago.",
+    "Four regions, four moods. The Hollow Wastes are open ash flats where the obelisks stand. The Machine Graveyard is wreckage as far as the eye reaches. The Resonant Forest glows with growths that should not photosynthesize. The Deep Hollow is dark, rich, and hostile to the unprotected.",
+    "Your research points are worth more here. First discoveries \u2014 the obelisk, a ruin, an anomaly, a memory fragment \u2014 each pay out once.",
+    "Nothing here follows you home. Research and discoveries are yours alone, even on a shared server."
+  ],
+  "requiredResearch": "nexus_echoes:dimensional_resonance",
+  "requiredDiscovery": "nexus_echoes:enter_hollow"
+}

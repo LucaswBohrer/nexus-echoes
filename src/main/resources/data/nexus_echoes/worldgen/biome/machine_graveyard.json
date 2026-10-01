@@ -1,0 +1,68 @@
+{
+  "temperature": 0.8,
+  "downfall": 0.0,
+  "has_precipitation": false,
+  "temperature_modifier": "none",
+  "effects": {
+    "sky_color": 4139550,
+    "fog_color": 7031342,
+    "water_color": 4864558,
+    "water_fog_color": 1971216,
+    "grass_color": 9337691,
+    "foliage_color": 8285003,
+    "mood_sound": {
+      "sound": "minecraft:ambient.basalt_deltas.mood",
+      "tick_delay": 6000,
+      "block_search_extent": 8,
+      "offset": 2.0
+    }
+  },
+  "spawners": {
+    "monster": [
+      {
+        "type": "nexus_echoes:hollow_stalker",
+        "weight": 35,
+        "minCount": 1,
+        "maxCount": 2
+      },
+      {
+        "type": "nexus_echoes:resonant_wisp",
+        "weight": 15,
+        "minCount": 1,
+        "maxCount": 1
+      }
+    ],
+    "creature": [
+      {
+        "type": "nexus_echoes:scrap_crawler",
+        "weight": 80,
+        "minCount": 2,
+        "maxCount": 4
+      }
+    ]
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:cave",
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [
+      "nexus_echoes:ruin"
+    ],
+    [],
+    [
+      "nexus_echoes:hollow_ore"
+    ],
+    [],
+    [],
+    [],
+    []
+  ]
+}

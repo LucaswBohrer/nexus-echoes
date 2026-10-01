@@ -94,7 +94,15 @@ public class CodexLoader extends SimpleJsonResourceReloadListener {
             }
             required = new ResourceLocation(raw);
         }
-        return new CodexEntry(id, title, category, content, required);
+        ResourceLocation discovery = null;
+        if (json.has("requiredDiscovery")) {
+            String raw = json.get("requiredDiscovery").getAsString();
+            if (!ResourceLocation.isValidResourceLocation(raw)) {
+                throw new IllegalArgumentException("malformed requiredDiscovery: " + raw);
+            }
+            discovery = new ResourceLocation(raw);
+        }
+        return new CodexEntry(id, title, category, content, required, discovery);
     }
 
     private static String stringField(JsonObject json, String name) {

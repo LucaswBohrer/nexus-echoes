@@ -1,5 +1,7 @@
 package com.nexus.echoes.kinetic.mc;
 
+import com.nexus.echoes.kinetic.Rpm;
+import com.nexus.echoes.kinetic.Torque;
 import com.nexus.echoes.kinetic.api.NodeRole;
 import com.nexus.echoes.kinetic.sim.KineticSnapshot;
 import com.nexus.echoes.kinetic.sim.SimNetwork;
@@ -48,6 +50,14 @@ public final class KineticManager {
     private final ServerLevel level;
     private final Map<BlockPos, KineticNodeProvider> nodes = new HashMap<>();
     private final Map<Integer, KineticSnapshot> snapshots = new HashMap<>();
+    /**
+     * Environmental derate per source position (0..1, default 1). Set by
+     * external systems (e.g. Hollow static-field anomalies) at the adapter
+     * layer: the pure simulator only ever sees a source with reduced ratings,
+     * so physics rules are unchanged. Transient — never persisted; owners
+     * re-apply after reload and clear on expiry.
+     */
+    private final Map<BlockPos, Double> derates = new HashMap<>();
     private boolean dirty = true;
     private int tick;
 
@@ -103,6 +113,40 @@ public final class KineticManager {
         }
         dirty = false;
         rebuild();
+    }
+
+    // ------------------------------------------------------- environmental fx
+
+    /**
+     * Sets a temporary output derate for the source at {@code pos}.
+     * Factor is clamped to [0, 1]; 1 = no derate. Triggers a rebuild.
+     * Owned by the calling system (e.g. the Hollow anomaly manager), which
+     * must clear it when the cause ends.
+     */
+    public void setDerate(BlockPos pos, double factor) {
+        double clamped = Math.max(0.0, Math.min(1.0, factor));
+        BlockPos key = pos.immutable();
+        if (clamped >= 1.0) {
+            if (derates.remove(key) != null) {
+                dirty = true;
+            }
+            return;
+        }
+        if (!Double.valueOf(clamped).equals(derates.put(key, clamped))) {
+            dirty = true;
+        }
+    }
+
+    /** Clears any derate at {@code pos}. */
+    public void clearDerate(BlockPos pos) {
+        if (derates.remove(pos) != null) {
+            dirty = true;
+        }
+    }
+
+    /** Current derate factor at {@code pos}, 1.0 when none. */
+    public double derateAt(BlockPos pos) {
+        return derates.getOrDefault(pos, 1.0);
     }
 
     // -------------------------------------------------------------- internals
@@ -162,10 +206,11 @@ public final class KineticManager {
                                    Map<String, BlockPos> idToPos) {
         Map<String, SimNode> simNodes = new HashMap<>();
         for (String id : component) {
-            KineticNodeProvider provider = nodes.get(idToPos.get(id));
+            BlockPos nodePos = idToPos.get(id);
+            KineticNodeProvider provider = nodes.get(nodePos);
             List<String> neighbors = new ArrayList<>(adjacency.get(id));
             Collections.sort(neighbors);
-            simNodes.put(id, toSimNode(id, provider, neighbors));
+            simNodes.put(id, toSimNode(id, nodePos, provider, neighbors));
         }
         KineticSnapshot snapshot = new SimNetwork(simNodes).simulate(networkId, level.getGameTime());
         snapshots.put(networkId, snapshot);
@@ -174,9 +219,12 @@ public final class KineticManager {
         }
     }
 
-    private static SimNode toSimNode(String id, KineticNodeProvider p, List<String> neighbors) {
+    private SimNode toSimNode(String id, BlockPos pos, KineticNodeProvider p, List<String> neighbors) {
+        double derate = derates.getOrDefault(pos, 1.0);
         return switch (p.getKineticRole()) {
-            case SOURCE -> SimNode.source(id, p.getRatedRpm(), p.getRatedTorque(),
+            case SOURCE -> SimNode.source(id,
+                    Rpm.of(p.getRatedRpm().value() * derate),
+                    Torque.ofNewtonMeters(p.getRatedTorque().newtonMeters() * derate),
                     p.getRatedDirection(), p.isKineticEnabled(), neighbors);
             case TRANSMISSION -> switch (p.getTransmissionKind()) {
                 case SHAFT -> SimNode.shaft(id, neighbors);

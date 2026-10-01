@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    "RMR",
+    " I "
+  ],
+  "key": {
+    "R": {
+      "item": "nexus_echoes:resonant_shard"
+    },
+    "M": {
+      "item": "nexus_echoes:memory_fragment"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "nexus_echoes:resonance_scanner",
+    "count": 1
+  }
+}

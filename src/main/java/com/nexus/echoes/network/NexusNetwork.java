@@ -1,6 +1,7 @@
 package com.nexus.echoes.network;
 
 import com.nexus.echoes.NexusEchoes;
+import com.nexus.echoes.dimension.network.DiscoverySyncPacket;
 import com.nexus.echoes.research.network.BuyResearchPacket;
 import com.nexus.echoes.research.network.OpenResearchPacket;
 import com.nexus.echoes.research.network.ResearchSyncPacket;
@@ -45,6 +46,9 @@ public final class NexusNetwork {
         CHANNEL.registerMessage(id(), BuyResearchPacket.class,
                 BuyResearchPacket::encode, BuyResearchPacket::decode, BuyResearchPacket::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(id(), DiscoverySyncPacket.class,
+                DiscoverySyncPacket::encode, DiscoverySyncPacket::decode, DiscoverySyncPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     private static int id() {

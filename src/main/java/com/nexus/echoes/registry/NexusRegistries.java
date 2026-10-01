@@ -9,6 +9,23 @@ import com.nexus.echoes.kinetic.mc.GeneratorMenu;
 import com.nexus.echoes.kinetic.mc.KineticGeneratorBlock;
 import com.nexus.echoes.kinetic.mc.KineticGeneratorBlockEntity;
 import com.nexus.echoes.kinetic.mc.ShaftBlock;
+import com.nexus.echoes.dimension.block.AnomalyWardBlock;
+import com.nexus.echoes.dimension.block.DimensionalSpireBlock;
+import com.nexus.echoes.dimension.block.ObeliskCoreBlock;
+import com.nexus.echoes.dimension.block.ResonantGrowthBlock;
+import com.nexus.echoes.dimension.block.SpireBlockEntity;
+import com.nexus.echoes.dimension.block.UnstableFractureBlock;
+import com.nexus.echoes.dimension.block.WardBlockEntity;
+import com.nexus.echoes.dimension.entity.HollowStalkerEntity;
+import com.nexus.echoes.dimension.entity.ResonantWispEntity;
+import com.nexus.echoes.dimension.entity.RiftPhantomEntity;
+import com.nexus.echoes.dimension.entity.ScrapCrawlerEntity;
+import com.nexus.echoes.dimension.item.MemoryFragmentItem;
+import com.nexus.echoes.dimension.item.ResonanceScannerItem;
+import com.nexus.echoes.dimension.feature.FractureSpireFeature;
+import com.nexus.echoes.dimension.feature.ObeliskFeature;
+import com.nexus.echoes.dimension.feature.RuinFeature;
+import com.nexus.echoes.dimension.feature.VaultFeature;
 import com.nexus.echoes.machines.CreativeCellBlock;
 import com.nexus.echoes.machines.CreativeCellBlockEntity;
 import com.nexus.echoes.machines.CrusherBlock;
@@ -24,6 +41,8 @@ import com.nexus.echoes.machines.recipe.ProcessingRecipe;
 import com.nexus.echoes.machines.recipe.ResonatorRecipe;
 import com.nexus.echoes.machines.recipe.ResonatorRecipeSerializer;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -34,6 +53,8 @@ import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -63,6 +84,10 @@ public final class NexusRegistries {
             DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, NexusEchoes.MOD_ID);
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
             DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, NexusEchoes.MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
+            DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, NexusEchoes.MOD_ID);
+    public static final DeferredRegister<Feature<?>> FEATURES =
+            DeferredRegister.create(ForgeRegistries.FEATURES, NexusEchoes.MOD_ID);
 
     // ------------------------------------------------------------------ blocks
 
@@ -149,6 +174,83 @@ public final class NexusRegistries {
                             .requiresCorrectToolForDrops()
                             .sound(SoundType.METAL)));
 
+    // ---------------------------------------------------- hollow (phase 5)
+
+    public static final RegistryObject<Block> HOLLOW_STONE = BLOCKS.register("hollow_stone",
+            () -> new Block(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_GRAY)
+                            .strength(2.0F, 6.0F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.STONE)));
+
+    public static final RegistryObject<Block> RUSTED_PLATING = BLOCKS.register("rusted_plating",
+            () -> new Block(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_ORANGE)
+                            .strength(3.0F, 8.0F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Block> ASHEN_SOIL = BLOCKS.register("ashen_soil",
+            () -> new Block(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_LIGHT_GRAY)
+                            .strength(1.2F, 1.2F)
+                            .sound(SoundType.GRAVEL)));
+
+    public static final RegistryObject<Block> HOLLOW_ORE = BLOCKS.register("hollow_ore",
+            () -> new DropExperienceBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.STONE)
+                            .strength(3.5F, 3.5F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.STONE),
+                    UniformInt.of(2, 5)));
+
+    public static final RegistryObject<Block> DIMENSIONAL_SPIRE = BLOCKS.register("dimensional_spire",
+            () -> new DimensionalSpireBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_PURPLE)
+                            .strength(4.0F, 12.0F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.METAL)
+                            .lightLevel(state -> 9)));
+
+    public static final RegistryObject<Block> OBELISK_CORE = BLOCKS.register("obelisk_core",
+            () -> new ObeliskCoreBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_BLACK)
+                            .strength(-1.0F, 3600000.0F)
+                            .sound(SoundType.STONE)
+                            .lightLevel(state -> 12)));
+
+    public static final RegistryObject<Block> ANOMALY_WARD = BLOCKS.register("anomaly_ward",
+            () -> new AnomalyWardBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.METAL)
+                            .strength(3.5F, 6.0F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.METAL)
+                            .lightLevel(state -> 6)));
+
+    public static final RegistryObject<Block> UNSTABLE_FRACTURE = BLOCKS.register("unstable_fracture",
+            () -> new UnstableFractureBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_MAGENTA)
+                            .strength(1.5F, 3.0F)
+                            .sound(SoundType.GLASS)
+                            .lightLevel(state -> 10)));
+
+    public static final RegistryObject<Block> RESONANT_GROWTH = BLOCKS.register("resonant_growth",
+            () -> new ResonantGrowthBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.PLANT)
+                            .noCollission()
+                            .instabreak()
+                            .sound(SoundType.GRASS)
+                            .lightLevel(state -> 4)));
+
     // ------------------------------------------------------------------- items
 
     public static final RegistryObject<Item> NEXUS_SHARD = ITEMS.register("nexus_shard",
@@ -181,6 +283,25 @@ public final class NexusRegistries {
     public static final RegistryObject<Item> CRUSHER_ITEM = blockItem("crusher", CRUSHER);
     public static final RegistryObject<Item> PROCESSOR_ITEM = blockItem("processor", PROCESSOR);
 
+    // ---------------------------------------------------- hollow (phase 5)
+
+    public static final RegistryObject<Item> HOLLOW_STONE_ITEM = blockItem("hollow_stone", HOLLOW_STONE);
+    public static final RegistryObject<Item> RUSTED_PLATING_ITEM = blockItem("rusted_plating", RUSTED_PLATING);
+    public static final RegistryObject<Item> ASHEN_SOIL_ITEM = blockItem("ashen_soil", ASHEN_SOIL);
+    public static final RegistryObject<Item> HOLLOW_ORE_ITEM = blockItem("hollow_ore", HOLLOW_ORE);
+    public static final RegistryObject<Item> DIMENSIONAL_SPIRE_ITEM = blockItem("dimensional_spire", DIMENSIONAL_SPIRE);
+    public static final RegistryObject<Item> OBELISK_CORE_ITEM = blockItem("obelisk_core", OBELISK_CORE);
+    public static final RegistryObject<Item> ANOMALY_WARD_ITEM = blockItem("anomaly_ward", ANOMALY_WARD);
+    public static final RegistryObject<Item> UNSTABLE_FRACTURE_ITEM = blockItem("unstable_fracture", UNSTABLE_FRACTURE);
+    public static final RegistryObject<Item> RESONANT_GROWTH_ITEM = blockItem("resonant_growth", RESONANT_GROWTH);
+
+    public static final RegistryObject<Item> MEMORY_FRAGMENT = ITEMS.register("memory_fragment",
+            () -> new MemoryFragmentItem(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> RESONANCE_SCANNER = ITEMS.register("resonance_scanner",
+            () -> new ResonanceScannerItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> RESONANT_SHARD = ITEMS.register("resonant_shard",
+            () -> new Item(new Item.Properties()));
+
     // ---------------------------------------------------------- block entities
 
     public static final RegistryObject<BlockEntityType<ResonatorBlockEntity>> RESONATOR_BE =
@@ -204,6 +325,13 @@ public final class NexusRegistries {
             blockEntity("crusher", CrusherBlockEntity::new, CRUSHER);
     public static final RegistryObject<BlockEntityType<ProcessorBlockEntity>> PROCESSOR_BE =
             blockEntity("processor", ProcessorBlockEntity::new, PROCESSOR);
+
+    // ---------------------------------------------------- hollow (phase 5)
+
+    public static final RegistryObject<BlockEntityType<SpireBlockEntity>> SPIRE_BE =
+            blockEntity("dimensional_spire", SpireBlockEntity::new, DIMENSIONAL_SPIRE);
+    public static final RegistryObject<BlockEntityType<WardBlockEntity>> WARD_BE =
+            blockEntity("anomaly_ward", WardBlockEntity::new, ANOMALY_WARD);
 
     // ------------------------------------------------------------------- menus
 
@@ -239,6 +367,47 @@ public final class NexusRegistries {
     public static final RegistryObject<RecipeSerializer<ProcessingRecipe>> PROCESSING_SERIALIZER =
             recipeSerializer("processing", () -> new ProcessingRecipe.Serializer(PROCESSING.get()));
 
+    // ---------------------------------------------------------------- entities
+
+    public static final RegistryObject<EntityType<ScrapCrawlerEntity>> SCRAP_CRAWLER =
+            entityType("scrap_crawler", () -> EntityType.Builder
+                    .of(ScrapCrawlerEntity::new, MobCategory.CREATURE)
+                    .sized(0.9F, 0.7F)
+                    .clientTrackingRange(10)
+                    .build("scrap_crawler"));
+
+    public static final RegistryObject<EntityType<HollowStalkerEntity>> HOLLOW_STALKER =
+            entityType("hollow_stalker", () -> EntityType.Builder
+                    .of(HollowStalkerEntity::new, MobCategory.MONSTER)
+                    .sized(0.8F, 2.2F)
+                    .clientTrackingRange(10)
+                    .build("hollow_stalker"));
+
+    public static final RegistryObject<EntityType<ResonantWispEntity>> RESONANT_WISP =
+            entityType("resonant_wisp", () -> EntityType.Builder
+                    .of(ResonantWispEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 0.6F)
+                    .clientTrackingRange(10)
+                    .build("resonant_wisp"));
+
+    public static final RegistryObject<EntityType<RiftPhantomEntity>> RIFT_PHANTOM =
+            entityType("rift_phantom", () -> EntityType.Builder
+                    .of(RiftPhantomEntity::new, MobCategory.MONSTER)
+                    .sized(0.9F, 1.9F)
+                    .clientTrackingRange(10)
+                    .build("rift_phantom"));
+
+    // ---------------------------------------------------------------- features
+
+    public static final RegistryObject<Feature<NoneFeatureConfiguration>> OBELISK_FEATURE =
+            feature("obelisk", () -> new ObeliskFeature(NoneFeatureConfiguration.CODEC));
+    public static final RegistryObject<Feature<NoneFeatureConfiguration>> RUIN_FEATURE =
+            feature("ruin", () -> new RuinFeature(NoneFeatureConfiguration.CODEC));
+    public static final RegistryObject<Feature<NoneFeatureConfiguration>> VAULT_FEATURE =
+            feature("vault", () -> new VaultFeature(NoneFeatureConfiguration.CODEC));
+    public static final RegistryObject<Feature<NoneFeatureConfiguration>> FRACTURE_SPIRE_FEATURE =
+            feature("fracture_spire", () -> new FractureSpireFeature(NoneFeatureConfiguration.CODEC));
+
     // ------------------------------------------------------------------ wiring
 
     public static void register(IEventBus bus) {
@@ -248,7 +417,21 @@ public final class NexusRegistries {
         MENU_TYPES.register(bus);
         RECIPE_TYPES.register(bus);
         RECIPE_SERIALIZERS.register(bus);
+        ENTITY_TYPES.register(bus);
+        FEATURES.register(bus);
         NexusCreativeTabs.TABS.register(bus);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends net.minecraft.world.entity.Entity> RegistryObject<EntityType<T>> entityType(
+            String name, Supplier<EntityType<T>> factory) {
+        return (RegistryObject<EntityType<T>>) (RegistryObject<?>) ENTITY_TYPES.register(name, factory);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <C extends net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration>
+    RegistryObject<Feature<C>> feature(String name, Supplier<Feature<C>> factory) {
+        return (RegistryObject<Feature<C>>) (RegistryObject<?>) FEATURES.register(name, factory);
     }
 
     private NexusRegistries() {

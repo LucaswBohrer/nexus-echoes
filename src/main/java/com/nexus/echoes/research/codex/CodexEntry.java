@@ -18,14 +18,17 @@ import java.util.Objects;
  * @param category         grouping, e.g. {@code introduction}, {@code lore}
  * @param content          body lines shown in order
  * @param requiredResearch research that must be completed to read this entry,
- *                         or {@code null} for always-visible entries
+ *                         or {@code null} for no research requirement
+ * @param requiredDiscovery Hollow discovery that must be granted to read this
+ *                         entry, or {@code null} for no discovery requirement
  */
 public record CodexEntry(
         ResourceLocation id,
         String title,
         String category,
         List<String> content,
-        ResourceLocation requiredResearch) {
+        ResourceLocation requiredResearch,
+        ResourceLocation requiredDiscovery) {
 
     public CodexEntry {
         Objects.requireNonNull(id, "id");
@@ -36,5 +39,11 @@ public record CodexEntry(
             throw new IllegalArgumentException("codex entry must have content: " + id);
         }
         content = List.copyOf(content);
+    }
+
+    /** Backwards-compatible factory for entries without a discovery gate. */
+    public CodexEntry(ResourceLocation id, String title, String category,
+                      List<String> content, ResourceLocation requiredResearch) {
+        this(id, title, category, content, requiredResearch, null);
     }
 }

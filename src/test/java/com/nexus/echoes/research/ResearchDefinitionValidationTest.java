@@ -146,7 +146,10 @@ class ResearchDefinitionValidationTest {
             }
         }
         ResearchGraph graph = ResearchGraph.validate(defs);
-        assertEquals(4, graph.size());
+        // every shipped file parses and validates: the graph holds exactly the
+        // files on disk (6 after Phase 5 added the hollow branch).
+        assertEquals(defs.size(), graph.size());
+        assertTrue(graph.size() >= 6, "expected at least the 6 shipped researches");
         // the intended progression chain holds
         List<ResourceLocation> order = graph.topologicalOrder();
         assertTrue(order.indexOf(new ResourceLocation("nexus_echoes:industrial_foundations"))

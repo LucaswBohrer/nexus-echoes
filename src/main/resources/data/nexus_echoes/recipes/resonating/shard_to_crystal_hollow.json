@@ -1,0 +1,11 @@
+{
+  "type": "nexus_echoes:resonating",
+  "ingredient": {
+    "item": "nexus_echoes:resonant_shard"
+  },
+  "processingTime": 260,
+  "result": {
+    "item": "nexus_echoes:resonant_crystal",
+    "count": 1
+  }
+}

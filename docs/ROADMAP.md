@@ -136,19 +136,26 @@ per-player recipe filter — locked crafts void with an explanation);
 POST-PHASE-1 RUNTIME VALIDATION still applies (no real Forge
 client/server executed in this sandbox).
 
-## Phase 5 — THE HOLLOW (planned, not started)
+## Phase 5 — THE HOLLOW ✅ (implemented 2026-10-01, ADR-011)
 
-**Goal:** prove NEXUS is simultaneously a tech mod and an exploration mod.
+Proved NEXUS is simultaneously a tech mod and an exploration mod:
 
-- Dimension: worldgen, 4+ biomes, resources, structures/ruins, mobs
-- Hollow-native energy type + portal (technological: discovery → research → resources →
-  machine → energy → stabilization → portal)
-- Anomalies v1 (unstable regions, machine interference, rare events)
-- Codex v1 (progressive discovery log: techs, resources, dimensions, lore fragments)
-- First lore thread: *"someone was here before"*
+- Dimension: `the_hollow` with 4 biomes, resources, features-as-landmarks, 4 entities
+- Travel is technological, not a portal: dimensional spire (kinetic consumer) as entry,
+  obelisk as return — no second energy system was created (deliberate deviation from the
+  early "Hollow-native energy" sketch; research stays the only progression authority)
+- Anomalies v1 (unstable regions, machine interference via transient kinetic derate)
+- Codex v1 with discovery gating (`requiredDiscovery`); first lore thread: *"someone was
+  here before"* (ruins, vaults, memory fragments)
 
-**Exit criteria:** a player can progress Overworld → Hollow using only in-game
-discoveries; the dimension feels like a different reality, not a reskin.
+**Exit criteria met:** a player can progress Overworld → Hollow using only in-game
+discoveries (research `hollow_access` → craft spire → charge with kinetic power → cross →
+discover → return via obelisk).
+
+**Honestly deferred:** visual verification of terrain/fog/landmarks/entities,
+Jigsaw structures (features are landmarks, not `Structure`/`StructureSet`), custom
+`noise_settings`, custom sounds. POST-PHASE-1 RUNTIME VALIDATION still applies (no real
+Forge client/server executed in this sandbox).
 
 ## Phase 6 — THE ETHER (directional)
 

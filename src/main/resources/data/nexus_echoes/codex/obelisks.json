@@ -1,0 +1,12 @@
+{
+  "title": "Obelisks: The Way Back",
+  "category": "exploration",
+  "content": [
+    "The obelisks are the only reliable way home. Each is a tapered tower of rusted plating crowned with a black core that burns cold violet.",
+    "Right-click the core and you return to the exact spot you left \u2014 the Hollow remembers where each traveler came from, individually.",
+    "If you are lost, the resonance scanner points at the nearest obelisk within 128 blocks. They rise about fourteen blocks above the ash; you can see them coming.",
+    "Do not mine the core. It will not drop, and the Hollow will notice."
+  ],
+  "requiredResearch": "nexus_echoes:dimensional_resonance",
+  "requiredDiscovery": "nexus_echoes:obelisk"
+}

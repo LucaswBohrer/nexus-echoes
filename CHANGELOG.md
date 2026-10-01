@@ -58,6 +58,34 @@ Format follows *Keep a Changelog* loosely; versions are mod versions.
   GUI use — machine block entities untouched
 - 96 new tests (174/174 green); 122 classes compiled
 
+### Phase 5 — THE HOLLOW
+
+- New `dimension/` module: pure domain (`api`, `travel`, `anomaly`, `discovery`)
+  + thin MC adapters (travel, anomaly manager, SavedData, discovery sync,
+  travel-data, command, forge events)
+- The Hollow dimension (`the_hollow`): dimension type + 4 biomes
+  (`hollow_wastes`, `machine_graveyard`, `resonant_forest`, `deep_hollow`);
+  reuses vanilla overworld noise settings
+- Landmarks as deterministic custom features (not Jigsaw structures): obelisk
+  (rarity 1/60), ruin, vault (loot chest), fracture spire; ore/growth patches
+- Travel: Dimensional Spire (kinetic consumer, 240 RPM / 25 N·m, 60 s charge,
+  charge drains on crossing) is the only entry; obelisk is the only return
+  (per-player origin links in `PlayerTravelData`); server-authoritative
+  `ITeleporter` + pure safe-spawn search; gated on `hollow_access`
+- Anomalies: 4 types (static field, gravity ripple, temporal echo, fracture
+  surge); server-owned, 20-tick sweeps, cap 8, vanilla-particle presentation;
+  transient kinetic derate in `KineticManager` (pure simulator untouched);
+  Anomaly Ward (24-block suppression)
+- Content: 9 blocks, memory fragment + resonance scanner items, 4 entities with
+  models/renderers (scrap crawler, hollow stalker, resonant wisp, rift phantom),
+  procedural 16×16 placeholder textures (no entity textures yet)
+- Progression: research branch `dimensional_resonance` → `hollow_exploration`
+  (200) → `anomaly_studies` (250); 5 discovery-gated codex entries
+  (additive `requiredDiscovery`); per-UUID discovery isolation
+- New tests: travel rules, safe-spawn, anomaly lifecycle, discovery gating,
+  codex discovery gate, spire charge/brownout/decay, worldgen JSON integrity
+  (174-test baseline preserved)
+
 ### Known limitations (standing)
 
 - **POST-PHASE-1 RUNTIME VALIDATION**: no real Forge client/server has been

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SPS",
+    "PMP",
+    "SPS"
+  ],
+  "key": {
+    "S": {
+      "item": "nexus_echoes:resonant_shard"
+    },
+    "P": {
+      "item": "nexus_echoes:nexus_plate"
+    },
+    "M": {
+      "item": "nexus_echoes:memory_fragment"
+    }
+  },
+  "result": {
+    "item": "nexus_echoes:anomaly_ward",
+    "count": 1
+  }
+}

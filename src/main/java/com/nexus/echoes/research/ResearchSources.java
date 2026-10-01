@@ -22,6 +22,28 @@ public final class ResearchSources {
     public static final ResearchSource CRAFT_GEAR =
             new ResearchSource("craft_gear", 10, true);
 
+    // ------------------------------------------------------------ Phase 5: Hollow
+
+    /** First step into The Hollow: a discovery, once per player. */
+    public static final ResearchSource ENTER_HOLLOW =
+            new ResearchSource("enter_hollow", 25, true);
+
+    /** First use of an obelisk return core: a discovery, once per player. */
+    public static final ResearchSource DISCOVER_OBELISK =
+            new ResearchSource("discover_obelisk", 15, true);
+
+    /** First ruin/vault structure found: a discovery, once per player. */
+    public static final ResearchSource DISCOVER_RUIN =
+            new ResearchSource("discover_ruin", 15, true);
+
+    /** First anomaly witnessed: a discovery, once per player. */
+    public static final ResearchSource DISCOVER_ANOMALY =
+            new ResearchSource("discover_anomaly", 10, true);
+
+    /** Analyzing a memory fragment: repeatable deep-exploration income. */
+    public static final ResearchSource ANALYZE_MEMORY_FRAGMENT =
+            new ResearchSource("analyze_memory_fragment", 20, false);
+
     private ResearchSources() {
     }
 }

@@ -1,0 +1,13 @@
+{
+  "id": "nexus_echoes:anomaly_studies",
+  "title": "Anomaly Studies",
+  "description": "Tune instruments to the Hollow's unstable frequencies. Unlocks the Resonance Scanner.",
+  "category": "exploration",
+  "cost": 250,
+  "requirements": [
+    "nexus_echoes:hollow_exploration"
+  ],
+  "unlocks": [
+    "nexus_echoes:resonance_scanner"
+  ]
+}

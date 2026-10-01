@@ -105,7 +105,11 @@ class CodexTest {
                 count++;
             }
         }
-        assertEquals(6, count);
+        // every shipped file parses: the count matches the files on disk
+        // (11 after Phase 5 added the five hollow entries).
+        assertEquals(count, java.nio.file.Files.list(dir)
+                .filter(q -> q.toString().endsWith(".json")).count());
+        assertTrue(count >= 11, "expected at least the 11 shipped codex entries");
     }
 
     @Test

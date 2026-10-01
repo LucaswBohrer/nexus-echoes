@@ -1,0 +1,12 @@
+{
+  "title": "The Deep Hollow",
+  "category": "exploration",
+  "content": [
+    "Below the ash, past where the light gives up, the Deep Hollow keeps the richest resonant ore and the oldest wrecks.",
+    "It also keeps you. Unprotected travelers weaken within minutes \u2014 a dimensional exposure your body reads as exhaustion. The ward holds it back. So does leaving.",
+    "The stalkers hunt here in packs and the fractures cluster thick. Bring a scanner, a ward, and a way home.",
+    "What is buried deepest has not been cataloged. The Codex waits."
+  ],
+  "requiredResearch": "nexus_echoes:hollow_exploration",
+  "requiredDiscovery": "nexus_echoes:deep_hollow"
+}

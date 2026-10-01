@@ -4,6 +4,103 @@ Architectural Decision Records. Newest first. Format: context → decision → c
 
 ---
 
+## ADR-011 — Phase 5: The Hollow dimension architecture (2026-10-01)
+
+**Context:** Phase 5 adds the first real dimension. The audit (spec §1–2) found
+no architectural blocker: Forge 1.20.1 dimensions, dimension types, biomes,
+features are data-driven datapack JSON; teleportation, persistence and
+spawning all have server-side APIs; research already owns progression. The
+risk is not capability but shape — a "HollowManager" god-object or a one-off
+dimension hack would have to be rewritten for The Ether and The Core.
+Hard constraints from the phase brief: research stays the only progression
+authority; `hollow_access` gates per-player; no second kinetic system and no
+global physics changes; no per-tick global scans; no runtime structure
+generation; machines need structural models.
+
+**Decision:** a `dimension/` module mirroring the established
+pure-domain → thin-MC-adapter split:
+
+- **Domain (no Minecraft classes):** `dimension/api` (dimension/biome keys),
+  `dimension/travel` (`HollowTravelService`: permission rule + safe-spawn
+  search over an injected height function), `dimension/anomaly`
+  (`AnomalyDefinition`, `AnomalyInstance`, `AnomalyService`: spawn caps,
+  expiry, effect selection — all pure), `dimension/discovery`
+  (`DiscoveryIds`: `enter_hollow`, `obelisk`, `ruin_found`, `anomaly_seen`,
+  `deep_hollow`, `memory_fragment`).
+- **The dimensional spire is the entry mechanism — not a portal, not a new
+  energy system.** The roadmap's early sketch mentioned a "Hollow-native
+  energy type"; the phase constraints forbid a second kinetic system, so the
+  spire is instead a *kinetic consumer* (240 RPM / 25 N·m, genuinely needs a
+  2:1 gearbox off the standard generator). It accumulates charge for 60 s at
+  full power (brownout slows charging instead of stalling it); right-click at
+  full charge crosses into the Hollow and **drains the charge to zero** —
+  every crossing must be earned. Crafting/placing/using the spire is gated on
+  `hollow_access`. The recipe uses overworld materials only
+  (resonant crystals, iron, nexus component) — no chicken-and-egg with
+  Hollow resources.
+- **The obelisk is the only return mechanic.** `PlayerTravelData`
+  (Overworld `DimensionDataStorage`, per-player UUID → origin
+  dimension+pos) records where each traveler came from; right-clicking an
+  `obelisk_core` returns them there. A redundant `HollowBeaconBlock` was
+  prototyped mid-phase and **removed**: two entry/return devices would split
+  the mechanic without adding gameplay. Death/respawn keeps vanilla
+  semantics, documented: `bed_works=true`, `respawn_anchor_works=false`.
+- **Worldgen is data-driven except where code is honest.**
+  `dimension/`, `dimension_type/`, `worldgen/biome/` ×4 are JSON. The
+  dimension reuses the vanilla **overworld noise settings**
+  (`minecraft:overworld`) — no custom `noise_settings/hollow` was authored;
+  identity comes from blocks, biomes, fog, features and content, not from
+  exotic density math that cannot be visually verified in this sandbox.
+  Landmarks are deterministic custom `Feature<NoneFeatureConfiguration>`
+  classes (`obelisk`, `ruin`, `vault`, `fracture_spire`) placed via
+  configured/placed-feature JSON referenced directly from the biome
+  generation arrays — **explicitly not** `Structure`/`StructureSet`
+  (no Jigsaw pipeline exists in this repo to author or verify `.nbt`
+  templates; calling them "structures" in player-facing text is fine,
+  calling them structures in technical docs is not). Obelisk rarity was
+  tuned 250 → 60 so the 128-block scanner reliably finds one.
+- **Travel is server-authoritative.** `HollowTravelService.canTravel`
+  reuses `ResearchService.isUnlocked(hollow_access)` — no second progression
+  system. The MC adapter (`HollowTravel`) teleports via
+  `ServerPlayer.changeDimension` with a custom `ITeleporter` running the pure
+  safe-spawn search (spiral fallback, never inside blocks).
+- **Anomalies are server-owned, sparse, and client-light.** `AnomalySavedData`
+  lives in the Hollow level's `DimensionDataStorage`; `AnomalyManager` sweeps
+  every 20 ticks, caps active anomalies at 8, spawns sparsely near players —
+  no global scans. The client only sees vanilla particles
+  (`ServerLevel.sendParticles`); no custom anomaly packets. Kinetic
+  interference (`static_field`) is applied at the adapter layer only: a
+  transient derate map in `KineticManager` (`setDerate`, consulted when
+  building `SimNode`s, rebuild on change). The pure simulator is untouched —
+  anomalies can never corrupt network state. `AnomalyWardBlock` (24-block
+  radius, registered in `AnomalySavedData`) suppresses all effects; wards
+  need no power.
+- **Discovery-gated Codex is additive.** `CodexEntry` gains an optional
+  `requiredDiscovery`; `HollowDiscoveryData` (per-player set, Overworld
+  storage) syncs via `DiscoverySyncPacket` (S2C). Entries without
+  `requiredDiscovery` behave exactly as in Phase 4. Five Hollow entries
+  (`the_hollow`, `obelisks`, `anomalies`, `deep_hollow`,
+  `memory_fragments`) unlock progressively through play.
+- **Research branch, not a new system.** `dimensional_resonance` (250) →
+  `hollow_exploration` (200, unlocks `anomaly_ward`) → `anomaly_studies`
+  (250, unlocks `resonance_scanner`). Research rewards: first entry
+  (+25), obelisk (+15), ruin (+15), anomaly sighting (+10), memory-fragment
+  analysis (+20). Per-UUID isolation like Phase 4 — shared dimension,
+  private progression.
+- **Registries stay single-file** (ADR-002): new `ENTITY_TYPES` and
+  `FEATURES` `DeferredRegister`s join `NexusRegistries`. Sounds use vanilla
+  events only — no custom sound registry in Phase 5.
+
+**Consequences:** The Ether/Core reuse the same module shape
+(domain → adapter, data-driven worldgen, server-owned travel/state). What is
+honestly deferred: visual verification of terrain/fog/structures/entities
+(`POST-PHASE-1 RUNTIME VALIDATION`), Jigsaw structures, custom
+`noise_settings`, custom sounds. Tests target the pure domain (travel rules,
+safe-spawn, anomaly lifecycle, discovery gating, multiplayer isolation) plus
+JSON/data validation; the 174-test baseline must stay green.
+
+---
+
 ## ADR-010 — Phase 4: research & technological progression (2026-10-01)
 
 **Context:** Phase 4 must add the first real technology-progression layer:

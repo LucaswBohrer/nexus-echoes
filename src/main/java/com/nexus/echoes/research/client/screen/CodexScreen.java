@@ -1,5 +1,6 @@
 package com.nexus.echoes.research.client.screen;
 
+import com.nexus.echoes.dimension.client.DiscoveryClientState;
 import com.nexus.echoes.research.client.ResearchClientState;
 import com.nexus.echoes.research.codex.CodexEntry;
 import com.nexus.echoes.research.codex.CodexVisibility;
@@ -40,6 +41,7 @@ public class CodexScreen extends Screen {
     private final List<CodexEntry> visible = new ArrayList<>();
     private CodexEntry selected;
     private long seenVersion = -1;
+    private long seenDiscoveryVersion = -1;
 
     public CodexScreen(Screen parent) {
         super(Component.translatable("gui.nexus_echoes.codex"));
@@ -50,6 +52,7 @@ public class CodexScreen extends Screen {
     protected void init() {
         rebuild();
         seenVersion = ResearchClientState.version();
+        seenDiscoveryVersion = DiscoveryClientState.version();
     }
 
     private void rebuild() {
@@ -62,7 +65,7 @@ public class CodexScreen extends Screen {
             view.markCompleted(id);
         }
         for (Map.Entry<ResourceLocation, CodexEntry> e : CodexLoader.get().entrySet()) {
-            if (CodexVisibility.isVisible(e.getValue(), view)) {
+            if (CodexVisibility.isVisible(e.getValue(), view, DiscoveryClientState.all())) {
                 visible.add(e.getValue());
             }
         }
@@ -95,9 +98,11 @@ public class CodexScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
-        if (ResearchClientState.version() != seenVersion) {
+        if (ResearchClientState.version() != seenVersion
+                || DiscoveryClientState.version() != seenDiscoveryVersion) {
             rebuild();
             seenVersion = ResearchClientState.version();
+            seenDiscoveryVersion = DiscoveryClientState.version();
         }
     }
 

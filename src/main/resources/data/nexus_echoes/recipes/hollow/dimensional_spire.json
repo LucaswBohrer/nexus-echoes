@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CRC",
+    "INI",
+    "CRC"
+  ],
+  "key": {
+    "C": {
+      "item": "nexus_echoes:resonant_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "N": {
+      "item": "nexus_echoes:nexus_component"
+    }
+  },
+  "result": {
+    "item": "nexus_echoes:dimensional_spire",
+    "count": 1
+  }
+}

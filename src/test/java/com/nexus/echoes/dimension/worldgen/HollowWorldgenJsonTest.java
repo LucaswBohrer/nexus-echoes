@@ -56,11 +56,16 @@ class HollowWorldgenJsonTest {
         assertFalse(json.get("respawn_anchor_works").getAsBoolean());
         assertEquals("nexus_echoes:the_hollow", json.get("effects").getAsString());
         JsonObject monsters = json.getAsJsonObject("monster_settings");
-        for (String field : List.of("piglin_safe", "has_raids",
+        for (String field : List.of("piglin_safe",
                 "monster_spawn_light_level", "monster_spawn_block_light_limit")) {
             assertTrue(monsters.has(field), "monster_settings missing: " + field);
         }
-        assertFalse(monsters.get("has_raids").getAsBoolean());
+        // 1.20.1 DimensionType.MonsterSettings codec has exactly these 3 fields.
+        // Unknown fields fail strict registry parsing at runtime
+        // (crashed world creation: "Failed to parse dimension_type/hollow.json").
+        assertEquals(Set.of("piglin_safe",
+                "monster_spawn_light_level", "monster_spawn_block_light_limit"),
+                monsters.keySet(), "monster_settings has unknown fields");
     }
 
     @Test
